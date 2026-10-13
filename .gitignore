@@ -1,0 +1,14 @@
+node_modules/
+out/
+*_frames/
+*_segments/
+*_work/
+vendor/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+assets-cache/
+bench-results/

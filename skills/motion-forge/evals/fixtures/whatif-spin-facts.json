@@ -1,0 +1,17 @@
+[
+ {
+  "big": "465 m/s",
+  "text": "The equator spins that fast today; stop it and anything not bolted down keeps flying east.",
+  "look": "wobble"
+ },
+ {
+  "big": "6 months",
+  "text": "One side would bake in daylight for half a year while the other freezes in night.",
+  "look": "dark"
+ },
+ {
+  "big": "1 ocean",
+  "text": "Seas would drift toward the poles, leaving one huge band of land around the middle.",
+  "look": "still"
+ }
+]

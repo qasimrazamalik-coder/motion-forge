@@ -1,0 +1,8 @@
+{ "words": [
+  { "word": "Most", "start": 0.3, "end": 0.55 }, { "word": "people", "start": 0.55, "end": 0.9 }, { "word": "edit", "start": 0.9, "end": 1.2 },
+  { "word": "videos", "start": 1.2, "end": 1.6 }, { "word": "backwards.", "start": 1.6, "end": 2.2 },
+  { "word": "Here's", "start": 2.6, "end": 2.85 }, { "word": "the", "start": 2.85, "end": 2.95 }, { "word": "fix", "start": 2.95, "end": 3.3 },
+  { "word": "in", "start": 3.3, "end": 3.4 }, { "word": "3", "start": 3.4, "end": 3.65 }, { "word": "steps.", "start": 3.65, "end": 4.2 } ],
+  "style": "highlight", "platform": "reels", "uppercase": false, "maxWords": 3,
+  "hook": { "text": "You're editing backwards", "until": 2.2 },
+  "progress": true, "duration": 5 }

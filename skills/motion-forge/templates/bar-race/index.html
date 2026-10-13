@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* Editorial data chart: one focus series in the signal colour, the rest quiet. Numbers are tabular so they never
+     jitter; values, ranks and the axis are pure functions of t (no tween state hidden in the DOM). 1u = 1% of height. */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --ground: var(--mf-ground, #F3F0E8); --ink: var(--mf-ink, #16161A); --mute: var(--mf-mute, #6F6C65); --signal: var(--mf-signal, #E4572E); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--ground); color: var(--ink); font-family: var(--mf-font-text, "MF Text"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .head { position: absolute; left: 7%; top: 8%; right: 7%; }
+  .head h1 { margin: 0; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; font-size: calc(var(--u) * 6.2); letter-spacing: -0.035em; line-height: 1; }
+  .head p { margin: calc(var(--u) * 1.4) 0 0; font-size: calc(var(--u) * 2.2); color: var(--mute); }
+  .plot { position: absolute; left: 7%; right: 7%; top: 27%; bottom: 13%; }
+  .names { position: absolute; left: 0; top: 0; bottom: 0; width: 17%; }
+  .bars { position: absolute; left: 18%; right: 9%; top: 0; bottom: 0; }
+  .tick { position: absolute; top: calc(var(--u) * -3.2); bottom: 0; border-left: 1px solid color-mix(in srgb, var(--ink) 14%, var(--ground)); }
+  .tick span { position: absolute; top: 0; left: 0; transform: translateX(-50%); font-size: calc(var(--u) * 1.6); color: var(--mute); font-feature-settings: "tnum" 1; white-space: nowrap; }
+  .row { position: absolute; left: 0; right: 0; top: 0; height: var(--rh); }
+  .row .bar { position: absolute; left: 0; top: 12%; bottom: 12%; background: color-mix(in srgb, var(--ink) 22%, var(--ground)); }
+  .row .val { position: absolute; top: 50%; transform: translateY(-50%); margin-left: calc(var(--u) * 1); font-size: calc(var(--u) * 2.4); font-feature-settings: "tnum" 1; white-space: nowrap; }
+  .row.focus .bar { background: var(--signal); }
+  .row.focus .val { font-weight: 700; }
+  .name { position: absolute; right: 0; top: 0; height: var(--rh); display: flex; align-items: center; font-size: calc(var(--u) * 2.6); white-space: nowrap; }
+  .name.focus { font-weight: 700; color: var(--signal); }
+  .period { position: absolute; right: 7%; bottom: 15%; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; font-size: calc(var(--u) * 15); letter-spacing: -0.05em; line-height: 0.8; font-feature-settings: "tnum" 1; color: color-mix(in srgb, var(--ink) 50%, var(--ground)); }
+  .source { position: absolute; left: 7%; bottom: 6%; font-size: calc(var(--u) * 1.7); color: var(--mute); }
+  .callout { position: absolute; left: 7%; right: 7%; bottom: 5.4%; text-align: right; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; font-size: calc(var(--u) * 3); letter-spacing: -0.02em; opacity: 0; }
+  .callout b { color: var(--signal); font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="head"><h1 id="title" data-mf-text></h1><p id="sub"></p></div>
+  <div class="period" id="period"></div><!-- behind the bars: a quiet watermark, never competing with data -->
+  <div class="plot" id="plot"><div class="names" id="names"></div><div class="bars" id="bars"></div></div>
+  <div class="source" id="source"></div>
+  <div class="callout" id="callout" data-mf-text></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}}, E = MF.tokens.ease;
+const tl = MF.timeline();
+const st = { p: 0, grow: 0, raceIn: 0 };
+let D, S = [], N = 0, show = 8, rows = [], names = [], ticks = [], barsW = 0, plotH = 0, SUB = 12;
+const fmt = (v) => Math.round(v).toLocaleString("en-US");
+const niceStep = (max) => { const raw = max / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag; return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * mag; };
+
+// value of series i at fractional period p (eased within each period so every year "lands")
+function valueAt(i, p) { const k = Math.min(Math.floor(p), N - 2), f = MF.ease("power1.inOut")(MF.clamp(p - k, 0, 1)); return MF.lerp(S[i].values[k], S[i].values[k + 1], f); }
+function ranksAt(p) { const o = S.map((s, i) => [valueAt(i, p), i]).sort((a, b) => b[0] - a[0]); const r = []; o.forEach(([, i], j) => (r[i] = j)); return r; }
+// smooth rank: ranks at the two bracketing sub-steps, blended — pure function of p
+function smoothRanks(p) { const a = Math.floor(p * SUB) / SUB, b = Math.min(a + 1 / SUB, N - 1), f = MF.smoothstep(0, 1, (p - a) * SUB);
+  const ra = ranksAt(a), rb = ranksAt(b); return ra.map((x, i) => MF.lerp(x, rb[i], f)); }
+
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}",
+  async setup() {
+    D = await MF.data({ title: "", subtitle: "", source: "", periods: [], series: [], focus: null, show: 8, callout: "" }, "data.json");
+    S = D.series; N = D.periods.length; show = Math.min(D.show || 8, S.length);
+    if (N < 2 || !S.length) throw new Error("bar-race: data needs ≥2 periods and ≥1 series");
+    document.getElementById("title").textContent = D.title;
+    document.getElementById("sub").textContent = D.subtitle;
+    document.getElementById("source").textContent = D.source;
+    const co = document.getElementById("callout"); co.textContent = D.callout;
+    const plot = document.getElementById("plot"); plotH = plot.offsetHeight;
+    const rh = plotH / show; plot.style.setProperty("--rh", rh + "px");
+    const bars = document.getElementById("bars"); barsW = bars.offsetWidth;
+    for (let k = 0; k < 6; k++) { const t = document.createElement("div"); t.className = "tick"; t.innerHTML = "<span></span>"; bars.appendChild(t); ticks.push(t); }
+    S.forEach((s, i) => {
+      const r = document.createElement("div"); r.className = "row" + (s.name === D.focus ? " focus" : ""); r.innerHTML = '<div class="bar"></div><div class="val"></div>'; bars.appendChild(r); rows.push(r);
+      const n = document.createElement("div"); n.className = "name" + (s.name === D.focus ? " focus" : ""); n.textContent = s.name; document.getElementById("names").appendChild(n); names.push(n);
+    });
+    const raceStart = 1.4, raceEnd = DUR - 2.6;
+    tl.addLabel("intro", 0)
+      .fromTo(MF.split("#title", { by: "words" }), { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: E.enter, stagger: 0.06 }, 0.1)
+      .fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: E.soft }, 0.5)
+      .fromTo(st, { grow: 0 }, { grow: 1, duration: 0.9, ease: E.enter }, 0.5)
+      .fromTo(["#period", "#source"], { opacity: 0 }, { opacity: 1, duration: 0.5, ease: E.soft }, 0.8)
+      .addLabel("race", raceStart)
+      .fromTo(st, { p: 0 }, { p: N - 1, duration: raceEnd - raceStart, ease: "none" }, "race")
+      .addLabel("callout", raceEnd + 0.3)
+      .fromTo("#callout", { opacity: 0, y: H * 0.01 }, { opacity: 1, y: 0, duration: 0.6, ease: E.enter }, "callout")
+      .to("#source", { opacity: 0, duration: 0.3, ease: E.exit }, "callout");
+  },
+  timeline: tl,
+  render() {
+    const p = st.p, r = smoothRanks(p), vals = S.map((_, i) => valueAt(i, p));
+    const leader = Math.max(...vals), max = leader * 1.04, rh = plotH / show;
+    rows.forEach((row, i) => {
+      const y = r[i] * rh, visible = MF.clamp(show - r[i] + 0.0, 0, 1);       // fades out as it drops below the cut
+      const w = (vals[i] / max) * barsW * st.grow;
+      row.style.transform = `translate(0px, ${y.toFixed(2)}px)`; row.style.opacity = (visible * MF.clamp(st.grow * 2, 0, 1)).toFixed(3);
+      row.firstChild.style.width = w.toFixed(2) + "px"; row.lastChild.style.left = w.toFixed(2) + "px"; row.lastChild.textContent = fmt(vals[i] * st.grow);
+      names[i].style.transform = `translate(0px, ${y.toFixed(2)}px)`; names[i].style.opacity = (visible * MF.clamp(st.grow * 2, 0, 1)).toFixed(3);
+    });
+    const step = niceStep(max);
+    ticks.forEach((t, k) => { const v = step * (k + 1), x = (v / max) * barsW; t.style.transform = `translate(${x.toFixed(2)}px, 0px)`; t.style.opacity = x < barsW * 0.98 ? st.grow : 0; t.firstChild.textContent = fmt(v); });
+    document.getElementById("period").textContent = D.periods[Math.min(N - 1, Math.round(p))];
+  },
+  stats: () => ({ series: S.length, periods: N })
+});
+</script>
+</body>
+</html>

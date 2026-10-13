@@ -1,0 +1,4 @@
+{ "summary": "Logo/product reveal on a master timeline; uses GSAP when vendored, falls back to the MF engine (same API).",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 5, "title": "Mark reveal" },
+  "needs": [ { "pkg": "gsap", "files": ["dist/gsap.min.js"], "as": "gsap.min.js", "optional": true,
+               "license": "GSAP ships under its own no-charge 'Standard License' (not OSI); confirm it suits the client's use." } ] }

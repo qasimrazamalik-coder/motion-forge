@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Launch teaser (broken on purpose)</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* EVAL F — this project contains SEVEN planted defects. Do not fix them here; the eval copies this folder first. */
+  :root { --u: calc(1080px / 100); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #101418; color: #F2EFE8; font-family: "MF Display", sans-serif; }
+  .hero { position: absolute; left: calc(var(--u) * 8); top: calc(var(--u) * 34); margin: 0; font-family: "Brandon Grotesque", sans-serif; font-weight: 700;
+    font-size: calc(var(--u) * 15); letter-spacing: -0.04em; white-space: nowrap; }
+  .shot { position: absolute; right: calc(var(--u) * 8); top: calc(var(--u) * 12); width: calc(var(--u) * 40); }
+  .dot { position: absolute; width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 50%; background: #E0421C; left: 50%; top: 80%; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1 class="hero" id="hero">Introducing the fastest close in finance</h1>
+  <img class="shot" id="shot" src="assets/product-shot.png" alt="product">
+  <div class="dot" id="dot"></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const tl = MF.timeline();
+const items = [];                                         // empty on purpose
+const spacing = 1920 / items.length;                     // Infinity → NaN downstream
+MF.compose({
+  width: 1920, height: 1080, fps: 30, duration: 6,
+  setup() {
+    tl.fromTo("#hero", { x: -200, opacity: 0 }, { x: 0, opacity: 1, duration: 1.2, ease: "expo.out" }, 0.3)
+      .fromTo("#shot", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out" }, 0.8)
+      .to("#dot", { x: spacing * 0, duration: 1.5, ease: "sine.inOut" }, 2)
+      .to("#hero", { scale: 1.06, duration: 3, ease: "none" }, 2.5);
+  },
+  render(t) {
+    // jitter "for energy": non-deterministic between renders of the same t
+    document.getElementById("dot").style.marginLeft = (Math.random() * 6).toFixed(2) + "px";
+    window.__dbg.frames++;                                  // __dbg is never defined
+  }
+  // timeline: tl   ← never wired: the DOM tweens will not move in renders
+});
+</script>
+</body>
+</html>

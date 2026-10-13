@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* ---- art direction: editorial Swiss. paper, ink, one signal colour. 1u = 1% of frame height ---- */
+  :root { --paper: var(--mf-ground, #ECE8E0); --ink: var(--mf-ink, #151513); --mute: var(--mf-mute, #66635C); --signal: var(--mf-signal, #E0421C); --W: {{WIDTH}}; --H: {{HEIGHT}}; --u: calc(var(--H) * 1px / 100); }
+  html, body { margin: 0; height: 100%; background: #0b0b0a; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; background: var(--paper); color: var(--ink); overflow: hidden;
+    font-family: var(--mf-font-display, "MF Display"), sans-serif; font-kerning: normal; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; }
+  .grid { position: absolute; inset: calc(var(--u) * 7) calc(var(--u) * 9.5); }
+  .rule { position: absolute; left: 0; right: 0; height: max(1px, calc(var(--u) * 0.14)); background: var(--ink); transform-origin: 0 50%; }
+  .label { position: absolute; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 1.6); letter-spacing: 0.08em; text-transform: uppercase;
+    font-feature-settings: "tnum" 1, "case" 1; color: var(--ink); white-space: nowrap; }
+  .label .dim { color: var(--mute); }
+  .headline { position: absolute; left: 0; top: calc(var(--u) * 21); margin: 0; font-weight: 500; font-size: calc(var(--u) * 13.5); line-height: 0.98; letter-spacing: -0.035em; transform-origin: 0 0; }
+  .headline .l2 { display: block; font-family: var(--mf-font-serif, "MF Serif"), serif; font-style: italic; font-weight: 400; letter-spacing: -0.02em; color: var(--signal); }
+  .loud { position: absolute; right: 0; bottom: calc(var(--u) * 6); margin: 0; font-family: var(--mf-font-serif, "MF Serif"), serif; font-size: calc(var(--u) * 30); line-height: 0.8;
+    font-variation-settings: "wght" var(--wght, 400); --wght: 400; letter-spacing: -0.04em; white-space: nowrap; }
+  .field { position: absolute; inset: 0; background: var(--ink); clip-path: inset(0 100% 0 0); }
+  .field .grid .rule { background: color-mix(in srgb, var(--paper) 22%, var(--ink)); }
+  .field .label { color: var(--paper); } .field .label .dim { color: color-mix(in srgb, var(--paper) 55%, var(--ink)); }
+  .lockup { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); color: var(--paper); }
+  .lockup h2 { margin: 0; font-weight: 700; font-size: calc(var(--u) * 14); letter-spacing: -0.05em; line-height: 0.95; }
+  .lockup h2 em { font-family: var(--mf-font-serif, "MF Serif"), serif; font-weight: 400; letter-spacing: -0.02em; color: var(--mf-accent, var(--signal)); }
+  .sub { position: absolute; right: 0; top: calc(var(--u) * 9); margin: 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 2.3); line-height: 1.4; color: color-mix(in srgb, var(--paper) 72%, var(--ink)); width: 19em; text-wrap: pretty; }
+  .tick { position: absolute; width: calc(var(--u) * 1.1); height: calc(var(--u) * 1.1); background: var(--signal); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="grid">
+    <div class="rule" id="ruleTop" style="top:0"></div>
+    <div class="label" id="lblL" style="top: calc(var(--u) * 1.6); left: 0">01 <span class="dim">— Brief</span></div>
+    <div class="label" id="lblR" style="top: calc(var(--u) * 1.6); right: 0"><span class="dim">Motion study</span> · 2026</div>
+    <h1 class="headline" id="headline" data-mf-text><span class="l1" id="h1">Make the</span><span class="l2" id="h2">quiet parts</span></h1>
+    <div class="tick" id="tick" style="left:0; bottom: calc(var(--u) * 7.2)"></div>
+    <div class="label" id="lblB" style="left: calc(var(--u) * 2.4); bottom: calc(var(--u) * 6.6)">02 <span class="dim">— Then turn it up</span></div>
+    <p class="loud" id="loud">loud.</p>
+    <div class="rule" id="ruleBot" style="bottom:0"></div>
+  </div>
+  <div class="field" id="field">
+    <div class="grid">
+      <div class="rule" style="top:0"></div>
+      <div class="label" style="top: calc(var(--u) * 1.6); left: 0">03 <span class="dim">— Resolve</span></div>
+      <p class="sub" id="lockSub" data-mf-text>A typographic system where every movement carries a sentence, not a decoration.</p>
+      <div class="lockup"><h2 id="lockTitle" data-mf-text>Say less, <em>mean it.</em></h2></div>
+    </div>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+  const T = MF.tokens, D = T.dur, E = T.ease;
+  const W = {{WIDTH}}, H = {{HEIGHT}};
+  const tl = MF.timeline();
+  let words1, words2, lockWords;
+
+  MF.compose({
+    width: W, height: H, fps: {{FPS}}, title: "{{TITLE}}",
+    async setup() {
+      await document.fonts.ready;                         // split only after metrics are final
+      words1 = MF.split("#h1", { by: "words" });
+      words2 = MF.split("#h2", { by: "words" });
+      lockWords = MF.split("#lockTitle", { by: "words" });
+
+      // ACT I — set the page (0 – 2.9s): rules draw, labels settle, headline rises word by word
+      tl.addLabel("open", 0)
+        .fromTo("#ruleTop", { scaleX: 0 }, { scaleX: 1, duration: D.xl, ease: E.snap }, 0.15)
+        .fromTo(["#lblL", "#lblR"], { y: H * 0.012, opacity: 0 }, { y: 0, opacity: 1, duration: D.m, ease: E.enter, stagger: 0.12 }, 0.55)
+        .fromTo(words1, { yPercent: 105 }, { yPercent: 0, duration: D.l, ease: E.enter, stagger: T.stagger.word * 2 }, 0.75)
+        .fromTo(words2, { yPercent: 105 }, { yPercent: 0, duration: D.l + 0.15, ease: E.enter, stagger: T.stagger.word * 2 }, 1.1)
+      // hold: let the line be read (≈1.1s of stillness)
+      // ACT II — transformation (3.2 – 6.4s): headline yields the stage, "loud." takes it with weight + tracking
+        .addLabel("turn", 3.2)
+        .to("#headline", { scale: 0.42, y: -H * 0.115, duration: D.l + 0.2, ease: E.move }, "turn")
+        .fromTo("#tick", { scale: 0 }, { scale: 1, duration: D.s, ease: E.settle }, "turn+=0.55")
+        .fromTo("#lblB", { x: -W * 0.01, opacity: 0 }, { x: 0, opacity: 1, duration: D.m, ease: E.enter }, "turn+=0.62")
+        .fromTo("#loud", { yPercent: 18, opacity: 0, letterSpacing: "0.12em" }, { yPercent: 0, opacity: 1, letterSpacing: "-0.04em", duration: 1.3, ease: E.enter }, "turn+=0.7")
+        .fromTo("#loud", { "--wght": 400 }, { "--wght": 700, duration: 1.1, ease: E.move }, "turn+=1.3")
+        .fromTo("#ruleBot", { scaleX: 0 }, { scaleX: 1, duration: D.l, ease: E.snap }, "turn+=0.9")
+      // ACT III — resolve (6.6 – end): the ink field wipes in from the tick's edge, lockup lands, long hold
+        .addLabel("resolve", 6.6)
+        .fromTo("#field", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: D.l + 0.1, ease: E.move }, "resolve")
+        .to("#loud", { x: -W * 0.06, duration: D.l + 0.1, ease: E.move }, "resolve")
+        .fromTo(lockWords, { yPercent: 110 }, { yPercent: 0, duration: D.l, ease: E.enter, stagger: T.stagger.word * 1.5 }, "resolve+=0.55")
+        .fromTo("#lockSub", { y: H * 0.015, opacity: 0 }, { y: 0, opacity: 1, duration: D.m, ease: E.enter }, "resolve+=1.05")
+        .addLabel("hold", "resolve+=1.7");
+    },
+    timeline: tl,
+    duration: {{DURATION}},
+    labels: { open: 0, turn: 3.2, resolve: 6.6 }
+  });
+</script>
+</body>
+</html>

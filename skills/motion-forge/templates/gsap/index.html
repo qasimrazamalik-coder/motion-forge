@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* mark reveal — graphite + paper, one signal colour reserved for the cut. 1u = 1% of height */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --bg: var(--mf-ground, #131312); --paper: var(--mf-ink, #EEEAE1); --signal: var(--mf-signal, #E0421C); --mute: var(--mf-mute, #8E8A82); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--bg); color: var(--paper); font-family: var(--mf-font-display, "MF Display"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .lockup { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; gap: calc(var(--u) * 4.2); transform: translate(-50%, -50%); }
+  .markWrap { position: relative; z-index: 2; width: calc(var(--u) * 30); height: calc(var(--u) * 30); flex: none; }   /* above the name: letters emerge from behind the mark */
+  svg { width: 100%; height: 100%; overflow: visible; }
+  .ring { fill: none; stroke: var(--paper); stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .disc { fill: var(--paper); }
+  .cut { fill: var(--bg); }
+  .cutEdge { fill: var(--signal); }
+  .words { position: relative; z-index: 1; overflow: hidden; }
+  .name { margin: 0; font-weight: 700; font-size: calc(var(--u) * 17.5); letter-spacing: -0.05em; line-height: 0.95; }
+  .tag { margin: calc(var(--u) * 1.6) 0 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 2.6); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); white-space: nowrap; }
+</style>
+{{GSAP_TAG}}
+</head>
+<body>
+<div id="stage">
+  <div class="lockup" id="lockup">
+    <div class="markWrap" id="markWrap">
+      <svg viewBox="0 0 200 200" aria-label="Halden mark">
+        <circle class="ring" id="ring" cx="100" cy="100" r="80" pathLength="1" transform="rotate(-90 100 100)"/>
+        <circle class="disc" id="disc" cx="100" cy="100" r="80"/>
+        <g transform="rotate(-38 100 100)">
+          <rect class="cut" id="cut" x="14" y="95" width="172" height="10" style="transform-origin: 14px 100px"/>
+          <rect class="cutEdge" id="cutEdge" x="14" y="99" width="172" height="2" style="transform-origin: 14px 100px"/>
+        </g>
+      </svg>
+    </div>
+    <div class="words" id="words">
+      <h1 class="name" id="name" data-mf-text>Halden</h1>
+      <p class="tag" id="tag">Instruments for quiet work</p>
+    </div>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+// Same code path for GSAP and the MF engine: MF.timeline() returns a paused gsap.timeline() when GSAP is loaded.
+// Keep to the shared API: to / from / fromTo / set / addLabel / add / position strings ("<", ">", "label+=0.2").
+// Custom curves: pass MF.ease("cubic(...)") functions — both engines accept functions as eases.
+const W = {{WIDTH}}, H = {{HEIGHT}};
+const snap = MF.ease("cubic(0.2,0,0,1)"), settle = MF.ease("back.out(1.4)");
+const tl = MF.timeline();
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, title: "{{TITLE}}",
+  setup() {
+    const letters = MF.split("#name", { by: "chars" });
+    const wordsW = document.getElementById("words").getBoundingClientRect().width;
+    const shift = (wordsW + H * 0.042) / 2;                 // mark starts centred, then makes room for the wordmark
+    tl.set("#words", { opacity: 0 }, 0)
+      .addLabel("draw", 0.2)
+      .set("#markWrap", { x: shift }, 0)
+      .fromTo("#ring", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, "draw")
+      .fromTo("#disc", { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.55, ease: "power3.inOut" }, "draw+=0.7")
+      .to("#ring", { opacity: 0, duration: 0.2, ease: "none" }, "draw+=1.25")   // disc now carries the edge; drop the stroke seam
+      .addLabel("cut", 1.45)
+      .fromTo(["#cut", "#cutEdge"], { scaleX: 0 }, { scaleX: 1, duration: 0.42, ease: snap }, "cut")
+      .fromTo("#cutEdge", { opacity: 1 }, { opacity: 0, duration: 0.5, ease: "power1.out" }, "cut+=0.55")
+      .fromTo("#markWrap", { rotate: -8 }, { rotate: 0, duration: 0.7, ease: settle }, "cut")
+      .addLabel("name", 2.2)
+      .to("#markWrap", { x: 0, duration: 0.8, ease: "power3.inOut" }, "name")
+      .set("#words", { opacity: 1 }, "name+=0.25")
+      .fromTo(letters, { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "expo.out", stagger: 0.035 }, "name+=0.32")
+      .fromTo("#tag", { opacity: 0, letterSpacing: "0.4em" }, { opacity: 1, letterSpacing: "0.14em", duration: 1.0, ease: "expo.out" }, "name+=0.6")
+      .addLabel("hold", "name+=1.6")
+      .to({}, { duration: 0.01 }, {{DURATION}} - 0.01);    // pin total duration (hold to the end)
+  },
+  timeline: tl
+});
+</script>
+</body>
+</html>

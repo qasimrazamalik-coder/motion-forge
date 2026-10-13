@@ -1,0 +1,60 @@
+{
+  "about": "Agent-level evals for motion-forge. Run each brief as a fresh session (e.g. `claude -p \"/motion-forge <brief>\"` in an empty dir), then grade with the rubric. The deterministic half (rendering, QA detection, regression) is automated by scripts/run-evals.mjs.",
+  "budgets_note": "Budgets are upper bounds for a well-routed run; exceeding them is a routing defect, not a quality defect. Count subagents from the transcript; tokens from the session usage report.",
+  "evals": [
+    {
+      "id": "A", "name": "Premium kinetic typography",
+      "brief": "/motion-forge Create a premium 12-second kinetic typography video, 9:16, for a note-taking app called Quire. Message: 'Write less. Remember more.' Editorial, calm, confident.",
+      "expected_level": "L2",
+      "must": ["motionspec.yaml written", "stills contact sheet inspected", "MP4 1080x1920@30 12.0s passes inspect-output", "all text inside 9:16 safe zone", "no orphans / clipped glyphs", "word-level semantic reveals, holds >= 1s per line", "scorecard >= 90 written to out/qa.md"],
+      "must_not": ["particles/glow/neon gradients", "per-letter random scatter", "more than two font families"],
+      "budgets": { "subagents_max": 1, "full_renders_max": 2 },
+      "harness_case": "A2"
+    },
+    {
+      "id": "B", "name": "Fast product / logo reveal",
+      "brief": "/motion-forge 5-second logo sting for 'Halden' (instrument maker). Draw an original geometric mark, reveal the wordmark, end on a 2s hold. 16:9 MP4 + transparent WebM.",
+      "expected_level": "L1",
+      "must": ["original mark (not a known logo)", "alpha WebM renders with transparent background", "end hold >= 1.5s", "inspect-output PASS for MP4"],
+      "must_not": ["subagents", "Three.js"],
+      "budgets": { "subagents_max": 0, "full_renders_max": 2 },
+      "harness_case": "B"
+    },
+    {
+      "id": "C", "name": "Cinematic Three.js scene",
+      "brief": "/motion-forge 8-second cinematic 3D opener for an engineering firm: a field of structural elements under raking light, one continuous camera move, title 'Built to carry weight.' 16:9.",
+      "expected_level": "L3",
+      "must": ["three vendored locally (no CDN)", "deterministic camera driven by timeline", "type has a clean zone (not over busy geometry)", "stats() reports draw calls; instanced geometry", "dispose on pagehide", "critic or self scorecard >= 90"],
+      "must_not": ["OrbitControls look / spinning primitive", "Math.random in render"],
+      "budgets": { "subagents_max": 3 },
+      "harness_case": "C3"
+    },
+    {
+      "id": "D", "name": "Multi-scene brand film",
+      "brief": "/motion-forge 25-second launch film for Ledgerline (finance automation) using a Swiss-industrial language, controlled kinetic typography, subtle depth, strong transition continuity; export validated 16:9 and 9:16 variants.",
+      "expected_level": "L3",
+      "must": ["acts/beats with labels in timeline", "a named continuity device that survives every transition", "9:16 recomposed (not letterboxed/scaled)", "both variants pass inspect-output with exact dims/duration", "transition-boundary stills inspected"],
+      "must_not": ["generic zoom/fade transitions between every scene"],
+      "budgets": { "subagents_max": 4 },
+      "harness_case": "D"
+    },
+    {
+      "id": "E", "name": "Performance-constrained interactive",
+      "brief": "/motion-forge Interactive hero background for a website: procedural contour field reacting subtly to scroll position, must hold 60fps on a mid-range laptop, ≤ 1.5s to first frame, no dependencies.",
+      "expected_level": "L3",
+      "must": ["--perf measurements reported with the software-GL caveat", "DPR clamp, single draw call or justified", "reduced-motion fallback", "no per-frame allocations in the loop"],
+      "must_not": ["claiming 60fps without measurement"],
+      "budgets": { "subagents_max": 2 },
+      "harness_case": "E"
+    },
+    {
+      "id": "F", "name": "Recovery of a broken project",
+      "brief": "/motion-forge This teaser renders wrong and I don't know why — fix it and give me a clean MP4. (Work in a copy of evals/fixtures/recovery-broken.)",
+      "expected_level": "L2",
+      "must": ["finds all 7 planted defects (see evals/README.md, do not read before grading)", "fixes are minimal and named", "asks for or placeholders the missing product image instead of inventing a brand asset", "final render + inspect-output PASS", "at least one lesson added with --verification"],
+      "must_not": ["rewriting the composition from scratch", "suppressing QA codes instead of fixing causes"],
+      "budgets": { "subagents_max": 1, "repair_attempts_per_defect_max": 2 },
+      "harness_case": "F"
+    }
+  ]
+}

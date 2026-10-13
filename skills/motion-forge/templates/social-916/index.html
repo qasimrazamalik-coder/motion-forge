@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* social 9:16 — built for a phone at arm's length: huge type, flat colour, no hairlines (compression), all content
+     inside the platform-safe box (top 14%, bottom 20%, right 16% reserved for UI). 1u = 1% of frame WIDTH here. */
+  :root { --u: calc({{WIDTH}} * 1px / 100); --bg: var(--mf-ground, #1E33C4); --paper: var(--mf-ink, #F3EFE4); --deep: var(--mf-mute, #0E1A66); --blush: var(--mf-signal, #FFB9A6); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--bg); color: var(--paper); font-family: var(--mf-font-display, "MF Display"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .safe { position: absolute; left: 6%; right: 16%; top: 14%; bottom: 20%; }
+  .count { position: absolute; left: 0; top: 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 3.6); font-feature-settings: "tnum" 1; letter-spacing: 0.04em; }
+  .count .of { opacity: 0.55; }
+  .spine { position: absolute; left: 0; top: calc(var(--u) * 10); bottom: 0; width: calc(var(--u) * 1.4); background: rgba(243, 239, 228, 0.18); }
+  .spine i { position: absolute; left: 0; right: 0; top: 0; height: 100%; background: var(--paper); transform-origin: 50% 0; }
+  .beat { position: absolute; left: calc(var(--u) * 6); right: 0; top: calc(var(--u) * 46); }
+  .word { margin: 0; font-weight: 700; font-size: calc(var(--u) * 21); line-height: 0.9; letter-spacing: -0.055em; white-space: nowrap; }
+  .word em { font-family: var(--mf-font-serif, "MF Serif"), serif; font-weight: 500; letter-spacing: -0.03em; color: var(--blush); }
+  .cap { margin: calc(var(--u) * 5) 0 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 4.6); line-height: 1.25; max-width: 13em; opacity: 0.9; text-wrap: balance; }
+  .end { position: absolute; inset: 0; background: var(--paper); color: var(--deep); clip-path: inset(100% 0 0 0); }
+  .end .safe h2 { position: absolute; left: 0; top: calc(var(--u) * 38); margin: 0; font-weight: 700; font-size: calc(var(--u) * 19); line-height: 0.92; letter-spacing: -0.05em; }
+  .end .safe h2 em { font-family: var(--mf-font-serif, "MF Serif"), serif; font-weight: 500; color: var(--bg); }
+  .end .cta { position: absolute; left: 0; bottom: 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 4.4); padding: 0.55em 1.1em; border-radius: 999px; background: var(--deep); color: var(--paper); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="safe">
+    <div class="count"><span id="n">1</span><span class="of"> / 3</span></div>
+    <div class="spine"><i id="spineFill"></i></div>
+    <div class="beat" id="b1"><h1 class="word" id="w1">Faster<em>.</em></h1><p class="cap" id="c1" data-mf-text>Ship the first cut before lunch.</p></div>
+    <div class="beat" id="b2"><h1 class="word" id="w2">Calmer<em>.</em></h1><p class="cap" id="c2" data-mf-text>One timeline. No guesswork.</p></div>
+    <div class="beat" id="b3"><h1 class="word" id="w3">Yours<em>.</em></h1><p class="cap" id="c3" data-mf-text>Every frame inspected before it leaves.</p></div>
+  </div>
+  <div class="end" id="end">
+    <div class="safe">
+      <h2 id="endTitle" data-mf-text>Make it<br><em>move.</em></h2>
+      <div class="cta" id="cta">Try it today →</div>
+    </div>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}};
+const E = MF.tokens.ease;
+const tl = MF.timeline();
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}", safeZones: "9:16",
+  setup() {
+    const beats = [1, 2, 3].map((i) => ({ w: MF.split("#w" + i, { by: "words" }), c: "#c" + i }));
+    const endWords = MF.split("#endTitle", { by: "words" });
+    const BEAT = 1.85;                                   // social pacing: a beat every ~1.9s, readable at a glance
+    beats.forEach((b, i) => {
+      const at = 0.25 + i * BEAT;
+      tl.addLabel("beat" + (i + 1), at)
+        .fromTo(b.w, { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: E.enter }, at)
+        .fromTo(b.c, { opacity: 0, y: H * 0.012 }, { opacity: 1, y: 0, duration: 0.5, ease: E.enter }, at + 0.22);
+      if (i < 2) tl.to(b.w, { yPercent: -110, duration: 0.4, ease: E.exit }, at + BEAT - 0.5)
+                   .to(b.c, { opacity: 0, duration: 0.3, ease: E.exit }, at + BEAT - 0.5);
+    });
+    tl.fromTo("#spineFill", { scaleY: 0 }, { scaleY: 1, duration: 0.25 + 3 * BEAT - 0.2, ease: "none" }, 0.25)
+      .to({}, { duration: DUR, onUpdate: (e, p) => { document.getElementById("n").textContent = String(Math.min(3, 1 + Math.floor(Math.max(0, p * DUR - 0.25) / BEAT))); } }, 0)
+      .addLabel("end", 0.25 + 3 * BEAT)
+      .fromTo("#end", { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.65, ease: E.move }, "end")
+      .fromTo(endWords, { yPercent: 110 }, { yPercent: 0, duration: 0.75, ease: E.enter, stagger: 0.09 }, "end+=0.3")
+      .fromTo("#cta", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: E.settle }, "end+=0.75");
+  },
+  timeline: tl
+});
+</script>
+</body>
+</html>

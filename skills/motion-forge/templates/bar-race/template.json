@@ -1,0 +1,2 @@
+{ "summary": "Animated data chart — bar-chart race (16:9): ranked bars that re-order over periods, axis that rescales, period counter, source line, closing callout. Data in data.json (series × periods) or ?data=.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 14, "title": "Bar race" } }

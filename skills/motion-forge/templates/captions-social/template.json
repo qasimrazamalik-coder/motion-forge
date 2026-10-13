@@ -1,0 +1,2 @@
+{ "summary": "Social graphics overlay (transparent, any aspect): word-timed captions (word · highlight · karaoke · pop · box) from words.json in per-platform safe zones, optional hook title for the first seconds and a progress bar. Render with --formats alpha or prores; social-edit.mjs drives it.",
+  "defaults": { "width": 1080, "height": 1920, "fps": 30, "duration": 8, "title": "Social captions" } }

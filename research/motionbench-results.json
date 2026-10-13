@@ -1,0 +1,1326 @@
+{
+  "when": "2026-10-13T01:30:30.024Z",
+  "templates": 12,
+  "runs": 96,
+  "recall": 1,
+  "falseAlarmRate": 0,
+  "falseAlarms": [],
+  "byMutation": [
+    {
+      "mutation": "offsafe",
+      "what": "headline pushed into the platform-UI margin (inside the frame, outside the safe area)",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "clip",
+      "what": "headline half off the right edge",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "overlap",
+      "what": "a second label set on top of the headline",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "contrast",
+      "what": "headline recoloured to within 12% of its background",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "font",
+      "what": "headline set in a font that is not loaded",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "nondet",
+      "what": "a style that changes randomly on every render",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    },
+    {
+      "mutation": "image",
+      "what": "a broken <img> reference",
+      "n": 12,
+      "detected": 12,
+      "recall": 1,
+      "missed": []
+    }
+  ],
+  "rows": [
+    {
+      "template": "bar-race",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "bar-race",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "bar-race",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "base",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "base",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "captions-social",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST",
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "captions-social",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "gsap",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP",
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "gsap",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OFFSCREEN_VISIBLE",
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP",
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP",
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "kinetic-type",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "lower-thirds",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "promo",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "promo",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "social-916",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OFFSCREEN_VISIBLE",
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OVERLAP",
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OVERLAP",
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "social-916",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "threejs",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE",
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "threejs",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "ui-walkthrough",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "webgl",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 0,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_CLIPPED_BY_FRAME",
+        "TEXT_OFFSCREEN_VISIBLE"
+      ],
+      "highCodes": [
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "webgl",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "clean",
+      "crashed": false,
+      "exit": 0,
+      "codes": [],
+      "highCodes": [],
+      "falseAlarm": false
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "offsafe",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "highCodes": [
+        "TEXT_OUTSIDE_SAFE_ZONE"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "clip",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "highCodes": [
+        "TEXT_OUTSIDE_SAFE_ZONE",
+        "TEXT_CLIPPED_BY_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "overlap",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "TEXT_OVERLAP"
+      ],
+      "highCodes": [
+        "TEXT_OVERLAP"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "contrast",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "LOW_CONTRAST"
+      ],
+      "highCodes": [
+        "LOW_CONTRAST"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "font",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "FONT_MISSING"
+      ],
+      "highCodes": [
+        "FONT_MISSING"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "nondet",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "highCodes": [
+        "NONDETERMINISTIC_FRAME"
+      ],
+      "detected": true
+    },
+    {
+      "template": "whatif-3d",
+      "mutation": "image",
+      "crashed": false,
+      "exit": 2,
+      "codes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "highCodes": [
+        "CONSOLE_ERROR",
+        "REQUEST_FAILED",
+        "IMAGE_FAILED"
+      ],
+      "detected": true
+    }
+  ]
+}

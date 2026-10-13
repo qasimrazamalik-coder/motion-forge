@@ -1,0 +1,2 @@
+{ "summary": "UI / app walkthrough (16:9): phone frame with built-in HTML screens, tap indicator that finds its targets, screen transitions, numbered step callouts. Swap the screens for your app's UI; step copy in data.json.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 14, "title": "Walkthrough" } }

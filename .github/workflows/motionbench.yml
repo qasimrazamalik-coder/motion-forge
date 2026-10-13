@@ -1,0 +1,19 @@
+name: MotionBench (detector track)
+on: { workflow_dispatch: {}, schedule: [{ cron: "0 3 * * 1" }] }
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - run: npm i -g playwright@1.56 && npx playwright install --with-deps chromium
+      - run: mkdir -p /tmp/mflibs && cd /tmp/mflibs && npm init -y >/dev/null && npm i three gsap
+      - name: Run MotionBench
+        env: { MF_NODE_PATH: /tmp/mflibs, MF_HOME: /tmp/mfhome }
+        run: node skills/motion-forge/scripts/motionbench.mjs --out bench-results --work /tmp/mb
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: motionbench-results, path: bench-results/ }

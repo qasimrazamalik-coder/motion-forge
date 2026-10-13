@@ -1,0 +1,14 @@
+{
+  "kicker": "What if",
+  "question": "the Moon disappeared tonight?",
+  "event": "Gone.",
+  "facts": [
+    { "big": "1/3", "text": "Tides would shrink to roughly a third of today's — only the Sun would pull the seas." },
+    { "big": "Night", "text": "Moonless nights would be far darker; many nocturnal animals navigate by moonlight." },
+    { "big": "Tilt", "text": "Without the Moon steadying it, Earth's tilt could drift over millions of years — and seasons with it." }
+  ],
+  "follow": "Follow for the next What if",
+  "handle": "@yourchannel",
+  "captions": null,
+  "captionStyle": "box"
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* Transparent social overlay. Every element carries its own stroke/backing, because the footage under it is unknown.
+     .mf-plate is a footage stand-in for preview/stills only: alpha and layer renders hide it. */
+  :root { --signal: var(--mf-signal, #FFD45C); }
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; font-family: var(--mf-font-text, "MF Text"), sans-serif; -webkit-font-smoothing: antialiased; --mf-cap-hi: var(--signal); }
+  .mf-plate { position: absolute; inset: 0; background: radial-gradient(90% 60% at 50% 35%, #8C7B6B 0%, #4A4038 50%, #1E1A17 100%); }
+  .mf-plate::after { content: ""; position: absolute; left: 30%; top: 22%; width: 40%; height: 78%; border-radius: 48% 48% 0 0; background: linear-gradient(#3A302A, #17120F); }
+  .hook { text-wrap: balance; position: absolute; left: var(--mf-safe-l); right: calc(var(--mf-safe-r) + var(--mf-u) * 8); top: calc(var(--mf-safe-t) + var(--mf-u) * 4); }
+  .hook h1 { display: inline; margin: 0; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 800; font-size: calc(var(--mf-u) * 7.4); line-height: 1.12; letter-spacing: -0.02em; color: #111;
+    background: #fff; padding: 0.08em 0.28em 0.12em; border-radius: 0.14em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  [data-aspect=landscape] .hook h1 { font-size: calc(var(--mf-u) * 6.4); }
+  .progress { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--mf-u) * 0.9); background: rgba(0,0,0,0.35); }
+  .progress[data-pos=bottom] { top: auto; bottom: 0; }   /* bottom sits under platform UI on 9:16 — use for 16:9 */
+  .progress i { position: absolute; inset: 0; background: var(--signal); transform-origin: 0 50%; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="mf-plate"></div>
+  <div class="hook" id="hook" data-mf-layer="hook"><h1 id="hookT" data-mf-text></h1></div>
+  <div class="progress" id="progress" data-mf-layer="progress"><i id="bar"></i></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const FR = MF.frame({ width: {{WIDTH}}, height: {{HEIGHT}}, fps: {{FPS}} }), E = MF.tokens.ease;
+const tl = MF.timeline();
+let D;
+MF.compose({
+  width: FR.width, height: FR.height, fps: FR.fps, title: "{{TITLE}}", safeZones: FR.safeZones, frame: FR,
+  async setup() {
+    D = await MF.data({ words: [], style: "highlight", platform: "reels", uppercase: false, maxWords: 0, hook: null, progress: false, duration: {{DURATION}} }, "data.json");
+    const dur = D.duration || (D.words.length ? D.words[D.words.length - 1].end + 0.5 : {{DURATION}});
+    tl.to({ v: 0 }, { v: 1, duration: dur, ease: "none" }, 0);   // length of the overlay = length of the edit
+    if (D.hook && D.hook.text) {
+      document.getElementById("hookT").textContent = D.hook.text;
+      const until = Math.min(D.hook.until || 2.4, dur - 0.3);
+      tl.fromTo("#hook", { opacity: 0, y: FR.u * 2, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.28, ease: E.snap }, 0.04)
+        .to("#hook", { opacity: 0, y: -FR.u * 1.5, duration: 0.22, ease: E.exit }, until);
+    } else document.getElementById("hook").remove();
+    if (D.progress) document.getElementById("progress").dataset.pos = D.progress === "bottom" || (D.progress === true && FR.aspect === "landscape") ? "bottom" : "top";
+    if (D.progress) tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: dur, ease: "none" }, 0);
+    else document.getElementById("progress").remove();
+    tl.addLabel("end", Math.max(0, dur - 0.5));
+  },
+  captions: () => D && D.words.length ? { words: D.words, style: D.style, platform: FR.aspect === "portrait" ? D.platform : null, uppercase: D.uppercase, maxWords: D.maxWords || undefined } : null,
+  timeline: tl,
+});
+</script>
+</body>
+</html>

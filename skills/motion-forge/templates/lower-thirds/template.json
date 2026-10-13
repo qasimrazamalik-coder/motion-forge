@@ -1,0 +1,2 @@
+{ "summary": "Lower-thirds pack (16:9, transparent): styles bar · card · minimal (data.json `style` or ?style=). Render with --formats alpha,mp4 for a VP9-alpha overlay; a footage stand-in plate shows only in preview/stills.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 7, "title": "Lower third" } }

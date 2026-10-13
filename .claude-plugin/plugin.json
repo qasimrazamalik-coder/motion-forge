@@ -1,0 +1,33 @@
+{
+  "name": "motion-forge",
+  "version": "0.5.0",
+  "description": "AI motion graphics and social video edits that check their own frames: kinetic type, promos, data charts, 3D reels, Reels/TikTok/Shorts edits with hooks and captions, VFX looks, optional AI assets, and DaVinci Resolve / Premiere Pro / CapCut hand-off — with frame-level QA and a self-repair loop.",
+  "author": {
+    "name": "Qasim Raza Malik"
+  },
+  "repository": "https://github.com/qasimrazamalik-coder/motion-forge",
+  "license": "MIT",
+  "keywords": [
+    "motion-graphics",
+    "ai-video",
+    "video-editing",
+    "reels",
+    "tiktok",
+    "youtube-shorts",
+    "captions",
+    "davinci-resolve",
+    "premiere-pro",
+    "capcut",
+    "animation",
+    "gsap",
+    "threejs",
+    "webgl",
+    "kinetic-typography",
+    "ffmpeg",
+    "claude-code",
+    "agent-skills"
+  ],
+  "skills": [
+    "./skills/motion-forge"
+  ]
+}

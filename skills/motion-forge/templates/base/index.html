@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* Replace this palette/type with the brief's art direction. Size everything from --u (1% of frame height) so the
+     same composition re-frames cleanly for 16:9, 9:16 and 1:1. */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --bg: var(--mf-ground, #111110); --fg: var(--mf-ink, #EDE9E0); --accent: var(--mf-signal, #E0421C); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--mf-font-display, "MF Display"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .title { position: absolute; left: calc(var(--u) * 10); bottom: calc(var(--u) * 10); margin: 0; font-weight: 500; font-size: calc(var(--u) * 10); letter-spacing: -0.04em; line-height: 1; }
+  .bar { position: absolute; left: calc(var(--u) * 10); bottom: calc(var(--u) * 7); width: calc(var(--u) * 12); height: calc(var(--u) * 0.6); background: var(--accent); transform-origin: 0 50%; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <h1 class="title" id="title" data-mf-text>Start from intent</h1>
+  <div class="bar" id="bar"></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+  // Contract: every visual is a pure function of time. Build the timeline in setup(); MF.compose() exposes
+  // window.__MF for render.mjs (seek/qa/stats). Draw canvas/WebGL inside render(t) — never in your own rAF loop.
+  const T = MF.tokens;
+  const tl = MF.timeline();
+  MF.compose({
+    width: {{WIDTH}}, height: {{HEIGHT}}, fps: {{FPS}}, duration: {{DURATION}}, title: "{{TITLE}}",
+    setup() {
+      const words = MF.split("#title", { by: "words" });
+      tl.addLabel("in", 0.3)
+        .fromTo(words, { yPercent: 110 }, { yPercent: 0, duration: T.dur.l, ease: T.ease.enter, stagger: T.stagger.word }, "in")
+        .fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: T.dur.m, ease: T.ease.snap }, "in+=0.45")
+        .addLabel("out", {{DURATION}} - 1.0)
+        .to(words, { yPercent: -110, duration: T.dur.s, ease: T.ease.exit, stagger: T.stagger.tight }, "out")
+        .to("#bar", { scaleX: 0, duration: T.dur.s, ease: T.ease.exit }, "out+=0.1");
+    },
+    timeline: tl
+    // render(t, info) { ...draw canvas/WebGL from t... },
+  });
+</script>
+</body>
+</html>

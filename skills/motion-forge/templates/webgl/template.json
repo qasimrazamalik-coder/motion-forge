@@ -1,0 +1,2 @@
+{ "summary": "Raw WebGL2 fragment-shader scene (no deps): deterministic procedural contour field + DOM type overlay.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 8, "title": "Contour field" } }

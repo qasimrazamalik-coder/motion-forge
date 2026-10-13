@@ -1,0 +1,2 @@
+{ "summary": "Multi-format, data-driven promo (16:9 · 9:16 · 1:1 · 4:5 from one file): headline → 3 claims → end card. Brand kit, captions, beat sync, CSV batch.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 12, "title": "Promo" } }

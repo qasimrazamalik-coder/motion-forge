@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* art direction: scientific / cartographic. one procedural surface, one line that matters (ochre). 1u = 1% of height */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --bone: var(--mf-ink, #DCD5C5); --mute: var(--mf-mute, #8C897F); --ochre: var(--mf-signal, #D9A441); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #0E100D; font-family: var(--mf-font-display, "MF Display"), sans-serif; color: var(--bone); -webkit-font-smoothing: antialiased; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hud { position: absolute; inset: calc(var(--u) * 6) calc(var(--u) * 9.5); pointer-events: none; }
+  .label { position: absolute; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 1.6); letter-spacing: 0.09em; text-transform: uppercase; font-feature-settings: "tnum" 1; white-space: nowrap; }
+  .label .dim { color: var(--mute); }
+  .title { position: absolute; left: 0; bottom: calc(var(--u) * 1.5); margin: 0; font-weight: 500; font-size: calc(var(--u) * 11); line-height: 0.96; letter-spacing: -0.04em; }
+  .title em { font-family: var(--mf-font-serif, "MF Serif"), serif; font-weight: 400; letter-spacing: -0.015em; color: var(--ochre); }
+  .tick { display: inline-block; width: calc(var(--u) * 0.9); height: calc(var(--u) * 0.9); background: var(--ochre); margin-right: 0.8em; vertical-align: 0.05em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div class="hud">
+    <div class="label" id="lblA" style="left:0; top:0">Fig. 04 <span class="dim">— Contour study</span></div>
+    <div class="label" id="lblB" style="right:0; top:0"><span class="dim">Elev.</span> <span id="elev">0000</span> m</div>
+    <div class="label" id="lblC" style="right:0; bottom: calc(var(--u) * 1.2)"><span class="tick"></span>Isoline <span id="iso">00</span> <span class="dim">/ 22</span></div>
+    <h1 class="title" id="title" data-mf-text>Terrain of<br><em>ideas</em></h1>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}};
+const FS = `#version 300 es
+precision highp float;
+uniform vec2 u_res; uniform float u_time, u_dur, u_reveal, u_sweep, u_iso; uniform vec3 u_bone, u_ochre;
+out vec4 o;
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f*f*f*(f*(f*6.-15.)+10.);
+  return mix(mix(hash(i), hash(i+vec2(1,0)), u.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y); }
+float fbm(vec2 p){ float s = 0., a = .5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6); for (int i = 0; i < 5; i++){ s += a * noise(p); p = m * p; a *= .5; } return s; }
+vec3 hex(float r, float g, float b){ return vec3(r, g, b) / 255.; }
+void main(){
+  vec2 uv = (gl_FragCoord.xy - .5 * u_res) / u_res.y;
+  float t = u_time;
+  float push = 1.0 - 0.16 * smoothstep(0., u_dur, t);                // slow camera push-in (eased by smoothstep)
+  vec2 p = uv * push * 2.1 + vec2(0.35, 0.03 * t);
+  vec2 warp = vec2(fbm(p + vec2(.05 * t, 0.)), fbm(p + vec2(5.2, 1.3 - .04 * t)));
+  float h = fbm(p + .55 * warp);
+  float L = 22.;
+  float v = h * L * 1.6;
+  float fw = max(fwidth(v), 1e-4);
+  float d = abs(fract(v + .5) - .5);
+  float minor = 1. - smoothstep(.45 * fw, 1.35 * fw, d);
+  float isMajor = step(.5, 1. - abs(mod(floor(v + .5), 5.) - 0.) );   // every 5th level
+  float major = isMajor * (1. - smoothstep(.9 * fw, 2.1 * fw, d));
+  float acc = 1. - smoothstep(1.1 * fw, 2.6 * fw, abs(v - u_iso));      // the one line that matters
+  float r = length(uv * vec2(.85, 1.));
+  float reveal = 1. - smoothstep(u_reveal - .22, u_reveal, r);          // lines grow outward from centre
+  float sweep = exp(-pow((uv.x + uv.y * .35 - u_sweep) * 3.2, 2.));     // raking light band
+  vec3 bg = mix(hex(14., 16., 13.), hex(22., 25., 19.), smoothstep(-.6, .6, uv.y));
+  bg *= 1. - .35 * smoothstep(.45, 1.15, length(uv * vec2(.75, 1.)));   // vignette
+  vec3 bone = u_bone, ochre = u_ochre;                                  // from the brand kit (--mf-ink / --mf-signal)
+  vec2 q = gl_FragCoord.xy / u_res;                                     // typographic scrim: quiet the field under type
+  float scrim = 1. - .88 * smoothstep(.42, .06, q.x) * smoothstep(.46, .2, q.y) - .75 * smoothstep(.86, .94, q.y) - .55 * smoothstep(.8, .9, q.x) * smoothstep(.14, .06, q.y);
+  scrim = clamp(scrim, .12, 1.);
+  float lineA = (minor * (.16 + .30 * sweep) + major * (.42 + .35 * sweep)) * reveal * scrim;
+  vec3 col = bg + bone * lineA;
+  col = mix(col, ochre, acc * smoothstep(0., .25, u_reveal - .2) * .95 * mix(.35, 1., scrim));
+  float g = hash(gl_FragCoord.xy + floor(t * 30.) * 17.13) - .5;        // frame-locked grain (deterministic)
+  col += g * .018;
+  o = vec4(col, 1.);
+}`;
+const VS = `#version 300 es
+void main(){ vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2. - 1., 0., 1.); }`;
+
+const canvas = document.getElementById("gl");
+const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+const BONE = rgb(MF.cssColor("--bone", "#DCD5C5")), OCHRE = rgb(MF.cssColor("--ochre", "#D9A441"));   // brand kit → shader
+let gl, prog, U = {}, drawCalls = 0;
+function initGL() {
+  canvas.width = W * MF.pixelRatio(2); canvas.height = H * MF.pixelRatio(2);   // ?q=draft → half res in preview
+  gl = canvas.getContext("webgl2", { antialias: false, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+  if (!gl) throw new Error("WebGL2 unavailable");
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error("shader compile: " + gl.getShaderInfoLog(s)); return s; };
+  prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error("link: " + gl.getProgramInfoLog(prog));
+  gl.useProgram(prog); gl.bindVertexArray(gl.createVertexArray());
+  ["u_res", "u_time", "u_dur", "u_reveal", "u_sweep", "u_iso", "u_bone", "u_ochre"].forEach((n) => (U[n] = gl.getUniformLocation(prog, n)));
+}
+canvas.addEventListener("webglcontextlost", (e) => e.preventDefault());
+canvas.addEventListener("webglcontextrestored", () => initGL());
+addEventListener("pagehide", () => { gl && gl.deleteProgram(prog); });
+
+// motion plan — shader uniforms are driven by the same deterministic timeline as the DOM
+const state = { reveal: 0, sweep: -2.2, iso: 14.0 };
+const tl = MF.timeline();
+let titleWords;
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}",
+  setup() {
+    initGL();
+    titleWords = MF.split("#title", { by: "words" });
+    const E = MF.tokens.ease;
+    tl.addLabel("open", 0)
+      .fromTo(state, { reveal: 0 }, { reveal: 1.45, duration: 2.6, ease: "power2.inOut" }, 0.2)
+      .fromTo(["#lblA", "#lblB"], { opacity: 0, y: H * 0.01 }, { opacity: 1, y: 0, duration: 0.6, ease: E.enter, stagger: 0.12 }, 0.9)
+      .addLabel("iso", 2.4)
+      .fromTo(state, { iso: 14.0 }, { iso: 19.0, duration: 3.6, ease: E.drift }, "iso")
+      .fromTo("#lblC", { opacity: 0, x: W * 0.01 }, { opacity: 1, x: 0, duration: 0.6, ease: E.enter }, "iso+=0.2")
+      .addLabel("sweep", 3.6)
+      .fromTo(state, { sweep: -2.2 }, { sweep: 2.4, duration: 2.8, ease: "sine.inOut" }, "sweep")
+      .fromTo(titleWords, { yPercent: 108 }, { yPercent: 0, duration: 1.0, ease: E.enter, stagger: 0.14 }, "sweep+=0.4")
+      // HUD readouts are a function of time, not frame count
+      .to({}, { duration: DUR, onUpdate: (e, p) => {
+          document.getElementById("elev").textContent = String(Math.round(120 + 690 * MF.ease("power2.inOut")(p))).padStart(4, "0");
+          document.getElementById("iso").textContent = String(Math.round(state.iso)).padStart(2, "0"); } }, 0);
+  },
+  timeline: tl,
+  labels: { open: 0, iso: 2.4, sweep: 3.6 },
+  render(t) {
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(U.u_res, canvas.width, canvas.height); gl.uniform1f(U.u_time, t); gl.uniform1f(U.u_dur, DUR);
+    gl.uniform3fv(U.u_bone, BONE); gl.uniform3fv(U.u_ochre, OCHRE);
+    gl.uniform1f(U.u_reveal, state.reveal); gl.uniform1f(U.u_sweep, state.sweep); gl.uniform1f(U.u_iso, state.iso);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); drawCalls++;
+  },
+  stats: () => ({ drawCallsPerFrame: 1, canvas: [canvas.width, canvas.height], totalDraws: drawCalls })
+});
+</script>
+</body>
+</html>

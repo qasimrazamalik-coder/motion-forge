@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* Broadcast lower third. Lives inside title-safe (left 7.5%, bottom 11%); every style carries its own backing or
+     shadow so it reads over unknown footage. .mf-plate is a footage stand-in for preview/stills — alpha renders hide it. */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --ground: var(--mf-ground, #F4F1EA); --ink: var(--mf-ink, #121214); --signal: var(--mf-signal, #F2A93B); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; font-family: var(--mf-font-text, "MF Text"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .mf-plate { position: absolute; inset: 0; background: radial-gradient(120% 90% at 70% 30%, #6E8796 0%, #3B4B57 45%, #1D252C 100%); }
+  .mf-plate::after { content: ""; position: absolute; left: 52%; top: 18%; width: 26%; height: 82%; border-radius: 45% 45% 0 0; background: linear-gradient(#2A3640, #151B21); }
+  .lt { position: absolute; left: 7.5%; bottom: 11%; }
+  .name { margin: 0; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; white-space: nowrap; }
+  .role { margin: 0; white-space: nowrap; }
+  .tag { display: inline-block; font-size: calc(var(--u) * 1.6); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+  .mask { overflow: hidden; }
+  /* --- bar: accent bar + dark translucent backing */
+  [data-style=bar] .lt { display: flex; align-items: stretch; }
+  [data-style=bar] .accent { width: calc(var(--u) * 0.7); background: var(--signal); transform-origin: 50% 100%; }
+  [data-style=bar] .body { padding: calc(var(--u) * 1.6) calc(var(--u) * 2.6) calc(var(--u) * 1.8) calc(var(--u) * 2); background: rgba(12, 13, 16, 0.78); }
+  [data-style=bar] .name { font-size: calc(var(--u) * 4.6); color: #fff; }
+  [data-style=bar] .role { margin-top: calc(var(--u) * 0.6); font-size: calc(var(--u) * 2.4); color: rgba(255,255,255,0.78); }
+  [data-style=bar] .tag { position: absolute; left: 0; bottom: 100%; margin-bottom: calc(var(--u) * 1); padding: calc(var(--u) * 0.5) calc(var(--u) * 1); background: var(--signal); color: #121214; }
+  /* --- card: solid ground card, wipe reveal */
+  [data-style=card] .body { padding: calc(var(--u) * 2) calc(var(--u) * 3) calc(var(--u) * 2.2); background: var(--ground); color: var(--ink); border-radius: calc(var(--u) * 1); }
+  [data-style=card] .name { font-size: calc(var(--u) * 4.4); }
+  [data-style=card] .role { margin-top: calc(var(--u) * 0.6); font-size: calc(var(--u) * 2.3); color: color-mix(in srgb, var(--ink) 65%, var(--ground)); }
+  [data-style=card] .tag { margin-bottom: calc(var(--u) * 1.2); color: color-mix(in srgb, var(--signal) 50%, var(--ink)); }
+  [data-style=card] .accent { display: none; }
+  /* --- minimal: type only, drawn rule, soft shadow for legibility */
+  [data-style=minimal] .body { color: #fff; text-shadow: 0 calc(var(--u) * 0.15) calc(var(--u) * 1.2) rgba(0,0,0,0.55); }
+  [data-style=minimal] .name { font-size: calc(var(--u) * 5.2); }
+  [data-style=minimal] .rule { height: calc(var(--u) * 0.35); width: calc(var(--u) * 9); margin: calc(var(--u) * 1.2) 0; background: var(--signal); transform-origin: 0 50%; box-shadow: 0 0 calc(var(--u) * 1) rgba(0,0,0,0.35); }
+  [data-style=minimal] .role { font-size: calc(var(--u) * 2.5); }
+  [data-style=minimal] .tag, [data-style=minimal] .accent { display: none; }
+  .rule { display: none; } [data-style=minimal] .rule { display: block; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="mf-plate"></div>
+  <div class="lt" id="lt">
+    <div class="accent" id="accent"></div>
+    <div class="body" id="body">
+      <div class="tag" id="tag"></div>
+      <div class="mask"><h2 class="name" id="name" data-mf-text></h2></div>
+      <div class="rule" id="rule"></div>
+      <div class="mask"><p class="role" id="role" data-mf-text></p></div>
+    </div>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}}, E = MF.tokens.ease;
+const tl = MF.timeline();
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}", safeZones: "16:9",
+  async setup() {
+    const D = await MF.data({ name: "Name Surname", role: "Role", tag: "", style: "bar" }, "data.json");
+    const style = new URLSearchParams(location.search).get("style") || D.style || "bar";
+    document.getElementById("stage").dataset.style = style;
+    document.getElementById("name").textContent = D.name;
+    document.getElementById("role").textContent = D.role;
+    const tag = document.getElementById("tag"); if (D.tag) tag.textContent = D.tag; else tag.remove();
+    if (style === "bar" && D.tag) document.getElementById("lt").appendChild(tag);   // outside the clipped backing, or the wipe would hide it
+    const inAt = 0.5, outAt = DUR - 1.2;
+    if (style === "bar") {
+      tl.fromTo("#accent", { scaleY: 0 }, { scaleY: 1, duration: 0.35, ease: E.snap }, inAt)
+        .fromTo("#body", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.55, ease: E.move }, inAt + 0.2)
+        .fromTo("#name", { yPercent: 105 }, { yPercent: 0, duration: 0.55, ease: E.enter }, inAt + 0.4)
+        .fromTo("#role", { yPercent: 105 }, { yPercent: 0, duration: 0.5, ease: E.enter }, inAt + 0.52);
+      if (D.tag) tl.fromTo("#tag", { opacity: 0, y: H * 0.008 }, { opacity: 1, y: 0, duration: 0.35, ease: E.enter }, inAt + 0.7);
+      // exit on the parts, not on #lt: even inset(0%) on #lt would clip the tag that sits above the box
+      tl.to("#body", { clipPath: "inset(0% 100% 0% 0%)", duration: 0.45, ease: E.exit }, outAt)
+        .to("#accent", { scaleY: 0, duration: 0.3, ease: E.exit }, outAt + 0.3);
+      if (D.tag) tl.to("#tag", { opacity: 0, duration: 0.25, ease: E.exit }, outAt);
+    } else if (style === "card") {
+      tl.fromTo("#body", { clipPath: "inset(0% 0% 100% 0% round 10px)", y: H * 0.015 }, { clipPath: "inset(0% 0% 0% 0% round 10px)", y: 0, duration: 0.6, ease: E.move }, inAt)
+        .fromTo("#name", { yPercent: 105 }, { yPercent: 0, duration: 0.55, ease: E.enter }, inAt + 0.2)
+        .fromTo("#role", { yPercent: 105 }, { yPercent: 0, duration: 0.5, ease: E.enter }, inAt + 0.32);
+      if (D.tag) tl.fromTo("#tag", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: E.soft }, inAt + 0.45);
+      tl.to("#body", { opacity: 0, y: H * 0.01, duration: 0.4, ease: E.exit }, outAt);
+    } else {
+      tl.fromTo("#name", { yPercent: 105 }, { yPercent: 0, duration: 0.6, ease: E.enter }, inAt)
+        .fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: E.snap }, inAt + 0.25)
+        .fromTo("#role", { yPercent: 105 }, { yPercent: 0, duration: 0.5, ease: E.enter }, inAt + 0.4)
+        .to(["#name", "#role"], { yPercent: -105, duration: 0.4, ease: E.exit, stagger: 0.05 }, outAt)
+        .to("#rule", { scaleX: 0, duration: 0.35, ease: E.exit }, outAt + 0.05);
+    }
+  },
+  timeline: tl
+});
+</script>
+</body>
+</html>

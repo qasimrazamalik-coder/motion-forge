@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* "What if…?" science reel. Low-poly flat-shaded world, one warm key light, deep-space ground.
+     Hook in the first 1.5 s (sound-off viewers decide here), event, three consequence cards, follow card.
+     All type inside the 9:16 safe area; 1u = 1% of frame width. */
+  :root { --u: calc({{WIDTH}} * 1px / 100); --ink: var(--mf-ink, #F4EFE6); --mute: var(--mf-mute, #9AA3B5); --signal: var(--mf-signal, #FFB547); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #070A14; color: var(--ink); font-family: var(--mf-font-display, "MF Display"), sans-serif; -webkit-font-smoothing: antialiased; }
+  canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+  .safe { position: absolute; left: 6%; right: 16%; top: 14%; bottom: 20%; }
+  .hook { position: absolute; left: 0; right: 0; top: 0; margin: 0; }
+  .hook .k { display: block; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 4.4); letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal); }
+  .hook .q { display: block; margin-top: calc(var(--u) * 2); font-weight: 700; font-size: calc(var(--u) * 9.4); line-height: 1.0; letter-spacing: -0.04em; text-wrap: balance; }
+  .event { position: absolute; left: 0; right: 0; top: calc(var(--u) * 4); margin: 0; text-align: center; font-weight: 700; font-size: calc(var(--u) * 15); letter-spacing: -0.05em; opacity: 0; }
+  .fact { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 5); opacity: 0; }
+  .scrim { position: absolute; left: 0; right: 0; pointer-events: none; }
+  .scrim.top { top: 0; height: 38%; background: linear-gradient(#070A14 0%, rgba(7,10,20,0.82) 45%, rgba(7,10,20,0) 100%); }
+  .scrim.bot { bottom: 0; height: 50%; background: linear-gradient(rgba(7,10,20,0) 0%, rgba(7,10,20,0.8) 40%, #070A14 85%); }
+  .fact .big { display: block; font-weight: 700; font-size: calc(var(--u) * 17); line-height: 0.9; letter-spacing: -0.05em; color: var(--signal); }
+  .fact .t { display: block; margin-top: calc(var(--u) * 2.4); font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 4.7); line-height: 1.3; text-wrap: pretty; }
+  .dots { position: absolute; left: 0; bottom: 0; opacity: 0; display: flex; gap: calc(var(--u) * 1.4); }
+  .dots i { width: calc(var(--u) * 6); height: calc(var(--u) * 0.9); background: color-mix(in srgb, var(--ink) 25%, transparent); }
+  .dots i b { display: block; height: 100%; background: var(--signal); transform-origin: 0 50%; transform: scaleX(0); }
+  .follow { position: absolute; left: 0; right: 0; top: calc(var(--u) * 2); opacity: 0; }
+  .follow h2 { margin: 0; font-weight: 700; font-size: calc(var(--u) * 9); line-height: 1; letter-spacing: -0.04em; text-wrap: balance; }
+  .follow p { margin: calc(var(--u) * 3) 0 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 5); color: var(--signal); }
+</style>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+</head>
+<body>
+<div id="stage">
+  <div class="scrim top"></div><div class="scrim bot"></div>
+  <div class="safe">
+    <h1 class="hook" id="hook"><span class="k" id="kicker"></span><span class="q" id="q" data-mf-text></span></h1>
+    <p class="event" id="event"></p>
+    <div id="facts"></div>
+    <div class="dots" id="dots"></div>
+    <div class="follow" id="follow"><h2 id="followT" data-mf-text></h2><p id="handle"></p></div>
+  </div>
+</div>
+<script src="mf-runtime.js"></script>
+<script type="module">
+import * as THREE from "three";
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}}, E = MF.tokens.ease;
+
+// ---------- deterministic value noise (no Math.random anywhere)
+const rnd = MF.rng(42), perm = Array.from({ length: 512 }, () => rnd());
+const h3 = (x, y, z) => perm[((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) & 511];
+const fade = (t) => t * t * (3 - 2 * t);
+function vnoise(x, y, z) { const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = fade(x - xi), yf = fade(y - yi), zf = fade(z - zi);
+  const L = (a, b, t) => a + (b - a) * t;
+  return L(L(L(h3(xi, yi, zi), h3(xi + 1, yi, zi), xf), L(h3(xi, yi + 1, zi), h3(xi + 1, yi + 1, zi), xf), yf),
+           L(L(h3(xi, yi, zi + 1), h3(xi + 1, yi, zi + 1), xf), L(h3(xi, yi + 1, zi + 1), h3(xi + 1, yi + 1, zi + 1), xf), yf), zf); }
+const fbm = (x, y, z) => vnoise(x, y, z) * 0.55 + vnoise(x * 2.1, y * 2.1, z * 2.1) * 0.3 + vnoise(x * 4.3, y * 4.3, z * 4.3) * 0.15;
+
+// ---------- renderer / scene
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(MF.pixelRatio(2)); renderer.setSize(W, H, false);   // ?q=draft → half res in preview
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+document.getElementById("stage").prepend(renderer.domElement);
+renderer.domElement.addEventListener("webglcontextlost", (e) => { e.preventDefault(); renderer.domElement.__mfContextLost = true; });
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 200);
+scene.add(new THREE.HemisphereLight("#6E7FB8", "#0A0C14", 0.5));
+const sun = new THREE.DirectionalLight("#FFE2B8", 3.0); sun.position.set(-6, 3, 5); scene.add(sun);
+
+// ---------- depth of field (no addons): scene → render target with depth → one disc-blur pass sized by circle of confusion.
+// Focus on the planet; stars and the near moon fall soft. Tone mapping + sRGB are applied in this pass (the RT is linear).
+const DPR = renderer.getPixelRatio();
+const rt = new THREE.WebGLRenderTarget(W * DPR, H * DPR, { type: THREE.HalfFloatType, depthTexture: new THREE.DepthTexture(W * DPR, H * DPR) });   // no MSAA here: multisample resolve is not bit-stable across seeks in SwiftShader
+const dofMat = new THREE.ShaderMaterial({
+  uniforms: { tColor: { value: rt.texture }, tDepth: { value: rt.depthTexture }, near: { value: 0.1 }, far: { value: 200 }, focus: { value: 16 }, aperture: { value: 0.0 },
+    maxBlur: { value: 9.0 * DPR }, res: { value: new THREE.Vector2(W * DPR, H * DPR) } },
+  vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }",
+  fragmentShader: `
+    #include <common>
+    uniform sampler2D tColor, tDepth; uniform float near, far, focus, aperture, maxBlur; uniform vec2 res; varying vec2 vUv;
+    float viewZ(vec2 uv){ float d = texture2D(tDepth, uv).x; return (near * far) / ((far - near) * d - far); }
+    float coc(vec2 uv){ return clamp(abs(-viewZ(uv) - focus) * aperture, 0., maxBlur); }
+    void main(){
+      float c = coc(vUv); vec3 acc = vec3(0.); float wsum = 0.;
+      for (int i = 0; i < 20; i++) {                        // golden-angle disc
+        float fi = float(i), r = sqrt((fi + .5) / 20.), a = fi * 2.39996;
+        vec2 o = vec2(cos(a), sin(a)) * r * c / res;
+        float w = 1. + step(c * .5, coc(vUv + o));            // keep sharp foreground from bleeding into the blur
+        acc += texture2D(tColor, vUv + o).rgb * w; wsum += w; }
+      gl_FragColor = vec4(acc / wsum, 1.);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`, toneMapped: true, depthTest: false, depthWrite: false });
+const post = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), dofMat), postScene = new THREE.Scene(), postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+postScene.add(post);
+
+// ---------- the Moon breaks up (baked physics: simulated once, sampled by t — deterministic in any seek order)
+const SHARDS = 16, shardGeo = new THREE.IcosahedronGeometry(1, 0);
+const shards = new THREE.InstancedMesh(shardGeo, new THREE.MeshStandardMaterial({ color: "#B9B6AF", flatShading: true, roughness: 1 }), SHARDS);
+shards.visible = false; scene.add(shards);
+const debris = MF.physics({ gravity: [0, 0, 0], restitution: 0.6, duration: 6, bodies: Array.from({ length: SHARDS }, (_, i) => {
+  const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, s = Math.sqrt(1 - u * u), sp = 0.6 + rnd() * 1.1, r = 0.05 + rnd() * 0.09;
+  const d = [s * Math.cos(th), u, s * Math.sin(th)];
+  return { p: d.map((x) => x * 0.25), v: d.map((x) => x * sp), r, m: r * r * r * 100 }; }) });
+const shardSize = Array.from({ length: SHARDS }, () => 0.05 + rnd() * 0.09), shardSpin = Array.from({ length: SHARDS }, () => [rnd() * 3, rnd() * 3, rnd() * 3]);
+const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), EU = new THREE.Euler(), V3 = new THREE.Vector3(), S3 = new THREE.Vector3();
+
+// stars: one Points draw call, seeded
+const starGeo = new THREE.BufferGeometry(), sp = [];
+for (let i = 0; i < 900; i++) { const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, r = 60 + rnd() * 40, s = Math.sqrt(1 - u * u); sp.push(r * s * Math.cos(th), r * u, r * s * Math.sin(th)); }
+starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: "#C9D2FF", size: 0.22, sizeAttenuation: true, transparent: true, opacity: 0.85 }));
+scene.add(stars);
+
+// low-poly planet: displaced icosphere, per-face colours by elevation (flat shading = the low-poly look)
+function lowPoly(radius, detail, amp, palette, seedOff) {
+  const g = new THREE.IcosahedronGeometry(radius, detail), pos = g.attributes.position, v = new THREE.Vector3(), cols = [];
+  const hts = [];
+  for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); const n = v.clone().normalize();
+    const h = fbm(n.x * 1.7 + seedOff, n.y * 1.7, n.z * 1.7); hts.push(h); v.copy(n).multiplyScalar(radius * (1 + amp * Math.max(0, h - 0.45))); pos.setXYZ(i, v.x, v.y, v.z); }
+  for (let f = 0; f < pos.count; f += 3) { const h = (hts[f] + hts[f + 1] + hts[f + 2]) / 3; const c = new THREE.Color(palette(h, (pos.getY(f) / radius)));
+    for (let k = 0; k < 3; k++) cols.push(c.r, c.g, c.b); }
+  g.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); g.computeVertexNormals();
+  return g;
+}
+const earthGeo = lowPoly(1.6, 5, 0.09, (h, y) => Math.abs(y) > 0.86 ? "#EEF3F7" : h < 0.47 ? "#1E5BA8" : h < 0.5 ? "#D8C38F" : h < 0.6 ? "#4C8C3F" : h < 0.68 ? "#2F6B35" : "#8E8A80", 0);
+const earth = new THREE.Mesh(earthGeo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9 }));
+const ocean = new THREE.Mesh(new THREE.IcosahedronGeometry(1.62, 3), new THREE.MeshStandardMaterial({ color: "#2B6FC4", flatShading: true, roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.55 }));
+const world = new THREE.Group(); world.add(earth, ocean); world.rotation.z = THREE.MathUtils.degToRad(23.4); scene.add(world);
+const moonGeo = lowPoly(0.44, 2, 0.12, (h) => (h < 0.5 ? "#8D8B87" : "#B9B6AF"), 7);
+const moon = new THREE.Mesh(moonGeo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1 }));
+scene.add(moon);
+// moon "disappearance": a thin expanding ring of light where it was
+// scene extras: ice shell (sun scene), asteroid (impact scene)
+const ice = new THREE.Mesh(new THREE.IcosahedronGeometry(1.66, 3), new THREE.MeshStandardMaterial({ color: "#DDEBFA", flatShading: true, roughness: 0.6, transparent: true, opacity: 0 }));
+world.add(ice);
+const rockGeo = lowPoly(0.26, 1, 0.3, (h) => (h < 0.5 ? "#4A433C" : "#6B6158"), 11);
+const rock = new THREE.Mesh(rockGeo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 1, emissive: "#FF6A2A", emissiveIntensity: 0 }));
+rock.visible = false; scene.add(rock);
+const ring = new THREE.Mesh(new THREE.RingGeometry(0.98, 1, 64), new THREE.MeshBasicMaterial({ color: "#FFE2B8", transparent: true, opacity: 0, side: THREE.DoubleSide }));
+scene.add(ring);
+
+// ---------- motion plan
+// world units: at camZ≈16 the frame is ≈9.2 units tall, so 1% of frame height ≈ 0.092 — earthY places the planet in the band the copy leaves free
+const st = { orbit: 0, moonScale: 1, ringR: 0.3, ringO: 0, tide: 1, wobble: 0, camZ: 20, dark: 0, earthY: -0.7, dof: 0, debris: 0, shake: 1,
+  rot: 0, freeze: 0, sunI: 1, astT: 0, flash: 0 };
+const SPIN = 0.35;   // planet rotation, rad/s — rotation is TWEENED as an angle (st.rot), so it stays a pure function of t
+let SCENE = "moon", FACT = 2.45;
+// where the debris/ring burst happens: the Moon's position at the event (moon scene) or the impact point (impact scene)
+const IMPACT = new THREE.Vector3(0.8, 0.96, 0.99);   // impact point on the surface, relative to the planet centre (upper right, facing camera)
+const EVENT_T = 3.2;   // keep in sync with the "event" label below
+const tl = MF.timeline();
+let D = null, captions = null;
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}", safeZones: "9:16",
+  async setup() {
+    D = await MF.data({ kicker: "What if", question: "", event: "", facts: [], follow: "", handle: "", captions: null, captionStyle: "box", scene: "moon" }, "data.json");
+    SCENE = ["moon", "spin", "sun", "impact"].includes(D.scene) ? D.scene : "moon";
+    if (D.captions) captions = { srt: await MF.loadText(D.captions), style: D.captionStyle };
+    document.getElementById("kicker").textContent = D.kicker;
+    document.getElementById("q").textContent = D.question;
+    document.getElementById("event").textContent = D.event;
+    document.getElementById("followT").textContent = D.follow;
+    document.getElementById("handle").textContent = D.handle;
+    const facts = D.facts.slice(0, 3);
+    FACT = D.factDur || 2.45;   // seconds per fact card: whatif.mjs sets it from reading time / voice-over length
+    document.getElementById("facts").innerHTML = facts.map((f, i) => `<div class="fact" id="f${i}"><span class="big">${f.big}</span><span class="t" data-mf-text>${f.text}</span></div>`).join("");
+    document.getElementById("dots").innerHTML = facts.map(() => "<i><b></b></i>").join("");
+    const qWords = MF.split("#q", { by: "words" });
+    const bars = [...document.querySelectorAll("#dots b")];
+
+    // HOOK (0 – 3.0): the question lands before the viewer can scroll
+    tl.addLabel("hook", 0)
+      .fromTo("#kicker", { opacity: 0, y: W * 0.01 }, { opacity: 1, y: 0, duration: 0.4, ease: E.enter }, 0.05)
+      .fromTo(qWords, { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: E.enter, stagger: 0.07 }, 0.15)
+      .fromTo(st, { orbit: 0 }, { orbit: Math.PI * 0.9, duration: DUR, ease: "none" }, 0)
+      .fromTo(st, { camZ: 24 }, { camZ: 16, duration: 3.6, ease: E.move }, 0)
+      .addLabel("event", EVENT_T)
+      .fromTo(st, { dof: 0 }, { dof: 1, duration: 1.2, ease: E.move }, "event+=0.6");   // rack focus: the world sharp, the rest soft
+    // planet rotation as a tweened ANGLE: constant speed, or (spin scene) easing to a stop with matching start velocity
+    if (SCENE === "spin") tl.fromTo(st, { rot: 0 }, { rot: SPIN * EVENT_T, duration: EVENT_T, ease: "none" }, 0)
+      .to(st, { rot: SPIN * EVENT_T + SPIN * 1.6 / 2, duration: 1.6, ease: "power2.out" }, "event")
+      .to(st, { wobble: 0.35, duration: 0.8, ease: E.move }, "event+=0.3").to(st, { shake: 3, duration: 0.15, ease: E.enter }, "event+=1.4").to(st, { shake: 1, duration: 0.8, ease: E.soft }, "event+=1.55");
+    else tl.fromTo(st, { rot: 0 }, { rot: SPIN * DUR, duration: DUR, ease: "none" }, 0);
+    // EVENT per scene (3.2 – 5.0)
+    if (SCENE === "moon") tl   // the Moon collapses, breaks up, a ring of light
+      .to(st, { moonScale: 0.0001, duration: 0.55, ease: "power4.in" }, "event")
+      .fromTo(st, { debris: 0 }, { debris: 1, duration: 0.01, ease: "none" }, "event+=0.5").to(st, { debris: 0, duration: 1.6, ease: E.soft }, "event+=2.2")
+      .fromTo(st, { ringR: 0.3, ringO: 0 }, { ringR: 2.2, ringO: 0.9, duration: 0.25, ease: E.enter }, "event+=0.5")
+      .to(st, { ringO: 0, ringR: 3.4, duration: 0.9, ease: E.soft }, "event+=0.75");
+    if (SCENE === "sun") tl   // the Sun fades; frost creeps over the world
+      .to(st, { sunI: 0.12, duration: 1.4, ease: "power2.inOut" }, "event")
+      .to(st, { freeze: 0.55, duration: 2.2, ease: E.move }, "event+=0.4");
+    if (SCENE === "impact") tl   // an asteroid streaks in and hits; flash, shockwave ring, debris, camera kick
+      .fromTo(st, { astT: 0 }, { astT: 1, duration: 1.3, ease: "power1.in" }, EVENT_T - 0.8)
+      .fromTo(st, { flash: 0 }, { flash: 1, duration: 0.06, ease: "none" }, "event+=0.5").to(st, { flash: 0, duration: 0.9, ease: E.soft }, "event+=0.56")
+      .fromTo(st, { debris: 0 }, { debris: 1, duration: 0.01, ease: "none" }, "event+=0.5").to(st, { debris: 0, duration: 1.6, ease: E.soft }, "event+=2.2")
+      .fromTo(st, { ringR: 0.2, ringO: 0 }, { ringR: 1.4, ringO: 0.9, duration: 0.2, ease: E.enter }, "event+=0.5").to(st, { ringO: 0, ringR: 2.6, duration: 0.9, ease: E.soft }, "event+=0.7")
+      .to(st, { shake: 5, duration: 0.08, ease: "none" }, "event+=0.5").to(st, { shake: 1, duration: 1.0, ease: E.soft }, "event+=0.58");
+    tl.to("#hook", { opacity: 0, y: -W * 0.03, duration: 0.45, ease: E.exit }, "event+=0.6")
+      .fromTo("#event", { opacity: 0, scale: 1.15 }, { opacity: 1, scale: 1, duration: 0.45, ease: E.enter }, "event+=0.7")
+      .to("#event", { opacity: 0, duration: 0.35, ease: E.exit }, "event+=1.65")
+      .to(st, { earthY: 1.0, duration: 1.2, ease: E.move }, "event+=1.4")
+      .to("#dots", { opacity: 1, duration: 0.4, ease: E.soft }, 4.9);
+    // warm-up: compile every program and initialise the render target once, so the first DOF frame renders exactly like
+    // every later one (lazy init made the first post-processed frame differ → caught by the determinism check)
+    shards.visible = true; renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.setRenderTarget(null); renderer.render(postScene, postCam); shards.visible = false;
+    // CONSEQUENCES (5.0 – 12.4): one card per fact, each with its own visual change on the planet
+    // each fact card changes the world: data.facts[i].look = tide | dark | wobble | freeze | still | none (defaults per scene)
+    const LOOKS = { tide: { tide: 0.35 }, dark: { dark: 0.75 }, wobble: { wobble: 1 }, freeze: { freeze: 1 }, still: { wobble: 0 }, none: {} };
+    const DEF = { moon: ["tide", "dark", "wobble"], spin: ["wobble", "dark", "still"], sun: ["freeze", "dark", "none"], impact: ["dark", "freeze", "none"] }[SCENE];
+    const looks = facts.map((f, i) => LOOKS[f.look] || LOOKS[DEF[i]] || {});
+    facts.forEach((f, i) => {
+      const at = 5.0 + i * FACT;
+      tl.addLabel("fact" + (i + 1), at)
+        .fromTo("#f" + i, { opacity: 0, y: W * 0.03 }, { opacity: 1, y: 0, duration: 0.55, ease: E.enter }, at)
+        .fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: FACT - 0.15, ease: "none" }, at)
+        .to(st, Object.assign({ duration: 1.4, ease: E.move }, looks[i] || {}), at + 0.2);
+      tl.to("#f" + i, { opacity: 0, y: -W * 0.02, duration: 0.35, ease: E.exit }, at + FACT - 0.3);
+    });
+    // FOLLOW (after the last card – end). Total length = 5.0 + facts × FACT + 2.4 s (whatif.mjs scaffolds exactly that)
+    tl.addLabel("follow", Math.min(DUR - 2.0, 5.15 + facts.length * FACT))
+      .to("#dots", { opacity: 0, duration: 0.3, ease: E.exit }, "follow")
+      .to(st, { earthY: -1.6, camZ: 17, duration: 1.2, ease: E.move }, "follow")
+      .fromTo("#follow", { opacity: 0, y: W * 0.03 }, { opacity: 1, y: 0, duration: 0.6, ease: E.enter }, "follow+=0.3");
+  },
+  captions: () => captions,
+  timeline: tl,
+  render(t) {
+    world.position.y = st.earthY;
+    world.rotation.y = st.rot;
+    ice.material.opacity = 0.85 * st.freeze; ice.visible = st.freeze > 0.01;
+    // asteroid: from upper right toward the impact point (world space follows the planet as it moves)
+    const hit = V3.set(IMPACT.x, st.earthY + IMPACT.y, IMPACT.z);
+    rock.visible = SCENE === "impact" && st.astT > 0 && st.astT < 1;
+    if (rock.visible) { const u = st.astT; rock.position.set(hit.x - (1 - u) * 1.8, hit.y + (1 - u) * 4.5, hit.z + (1 - u) * 2.0); rock.rotation.set(t * 2, t * 1.3, 0); rock.material.emissiveIntensity = 0.4 + 2.2 * u; }
+    world.rotation.x = Math.sin(t * 2.3) * 0.18 * st.wobble;                       // tilt drifting once the Moon is gone
+    ocean.scale.set(1 + 0.035 * st.tide, 1 - 0.02 * st.tide, 1 + 0.035 * st.tide);   // tidal bulge shrinks with the Moon
+    const mr = 3.2, ph = SCENE === "moon" ? 0.6 : 0.6 + 2.6;   // other scenes park the Moon on the far left so it never hides the action
+    moon.position.set(Math.cos(st.orbit + ph) * mr * 0.8, st.earthY + 0.6 + Math.sin(st.orbit) * 0.3, Math.sin(st.orbit + ph) * mr - 1.0);
+    moon.scale.setScalar(st.moonScale); moon.rotation.y = t * 0.2;
+    moon.visible = st.moonScale > 0.001;
+    // the camera is placed BEFORE anything that looks at it (otherwise ring.lookAt sees last frame's camera → seek-order dependent)
+    const sh = MF.shake(t, { amp: 0.035 * st.shake, freq: 0.9, seed: 3 });            // seeded handheld drift
+    camera.position.set(sh[0], sh[1], st.camZ); camera.lookAt(sh[0] * 0.3, sh[1] * 0.3, 0); camera.rotation.z += sh[2];
+    // invisible ≠ opacity 0: a transparent mesh still writes depth, which the DOF pass reads
+    ring.visible = st.ringO > 0.001; if (SCENE === "impact") ring.position.set(IMPACT.x, st.earthY + IMPACT.y, IMPACT.z); else ring.position.copy(moon.position); ring.lookAt(camera.position); ring.scale.setScalar(st.ringR); ring.material.opacity = st.ringO;
+    sun.intensity = (3.0 * (1 - 0.35 * st.dark) + 6 * st.flash) * st.sunI; stars.material.opacity = 0.85 * (1 - 0.25 * st.dark);
+    // debris: positions from the baked simulation, relative to where the Moon was at the event
+    shards.visible = st.debris > 0.01 && t >= EVENT_T + 0.45;
+    if (shards.visible) {
+      const tt = t - (EVENT_T + 0.45), P = debris.at(tt), o = EVENT_T / DUR * Math.PI * 0.9;
+      const c = SCENE === "impact" ? [IMPACT.x, st.earthY + IMPACT.y, IMPACT.z]
+        : [Math.cos(o + 0.6) * mr * 0.8, st.earthY + 0.6 + Math.sin(o) * 0.3, Math.sin(o + 0.6) * mr - 1.0];
+      P.forEach((b, i) => { EU.set(shardSpin[i][0] * tt, shardSpin[i][1] * tt, shardSpin[i][2] * tt); Q.setFromEuler(EU);
+        M4.compose(V3.set(c[0] + b.p[0], c[1] + b.p[1], c[2] + b.p[2]), Q, S3.setScalar(shardSize[i] * st.debris)); shards.setMatrixAt(i, M4); });
+      shards.instanceMatrix.needsUpdate = true;
+    }
+    // depth of field: focus on the planet's near surface
+    dofMat.uniforms.focus.value = st.camZ - 1.4; dofMat.uniforms.aperture.value = 2.2 * DPR * st.dof;
+    if (st.dof > 0.01) { renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.setRenderTarget(null); renderer.render(postScene, postCam); }
+    else renderer.render(scene, camera);                                          // no blur yet: skip the extra pass
+  },
+  stats: () => ({ drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles })
+});
+addEventListener("pagehide", () => { [earthGeo, moonGeo, rockGeo, starGeo, shardGeo, ice.geometry, ocean.geometry, ring.geometry, post.geometry].forEach((g) => g.dispose()); rt.dispose(); dofMat.dispose(); renderer.dispose(); });
+</script>
+</body>
+</html>

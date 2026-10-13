@@ -1,0 +1,18 @@
+{
+  "name": "motion-forge",
+  "owner": {
+    "name": "Qasim Raza Malik"
+  },
+  "metadata": {
+    "description": "motion-forge: render-validated motion graphics for Claude Code",
+    "version": "0.5.0"
+  },
+  "plugins": [
+    {
+      "name": "motion-forge",
+      "source": "./",
+      "description": "AI motion graphics and social video edits that check their own frames: kinetic type, promos, data charts, 3D reels, Reels/TikTok/Shorts edits with hooks and captions, VFX looks, optional AI assets, and DaVinci Resolve / Premiere Pro / CapCut hand-off — with frame-level QA and a self-repair loop.",
+      "version": "0.5.0"
+    }
+  ]
+}

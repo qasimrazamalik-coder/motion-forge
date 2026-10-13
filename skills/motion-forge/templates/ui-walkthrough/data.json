@@ -1,0 +1,11 @@
+{
+  "app": "Tally",
+  "kicker": "How it works",
+  "headline": "Log a shared expense in three taps",
+  "steps": [
+    { "title": "Tap +", "text": "Start from the group you're in." },
+    { "title": "Enter it once", "text": "Amount, who paid, who shares." },
+    { "title": "Everyone's square", "text": "Balances update for the whole group." }
+  ],
+  "cta": "Fictional demo app — replace the screens with yours"
+}

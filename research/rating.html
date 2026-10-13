@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion pairwise rating</title>
+<style>
+:root{--bg:#F4F1EA;--fg:#17161A;--mute:#5F5C55;--line:#DDD8CC;--accent:#2B59D9}
+@media (prefers-color-scheme:dark){:root{--bg:#131315;--fg:#EEEAE2;--mute:#A09B91;--line:#2C2C30;--accent:#7FA2FF}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:1200px;margin:0 auto;padding:16px}h1{font-size:22px;margin:8px 0}p{color:var(--mute);margin:4px 0 12px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.pair{grid-template-columns:1fr}}
+figure{margin:0;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#000}video{width:100%;display:block;max-height:70vh}
+figcaption{background:var(--bg);padding:6px 10px;font-weight:600}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}button{font:inherit;padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}textarea{width:100%;min-height:48px;font:inherit;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px;box-sizing:border-box}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+</style></head><body><main>
+<h1>Which video is better made?</h1>
+<p>Judge craft only: legibility, layout, timing, polish. Ignore which topic you like. Keys: <b>A</b>, <b>B</b>, <b>=</b> (tie).</p>
+<div class="bar"><i id="prog" style="width:0"></i></div><p id="count"></p>
+<div class="pair"><figure><figcaption>A</figcaption><video id="va" controls autoplay muted loop playsinline></video></figure>
+<figure><figcaption>B</figcaption><video id="vb" controls autoplay muted loop playsinline></video></figure></div>
+<textarea id="note" placeholder="Optional: what decided it?"></textarea>
+<div class="btns"><button class="primary" data-c="A">A is better</button><button data-c="tie">Tie</button><button class="primary" data-c="B">B is better</button><button id="dl">Download my ratings (CSV)</button></div>
+</main><script>
+// pairs.json: [{ "id": "p1", "a": "videos/x_full.mp4", "b": "videos/x_baseline.mp4", "a_cond": "full", "b_cond": "baseline", "brief": "A" }]
+// Order and left/right side are randomised per rater; nothing is sent anywhere, ratings stay in this browser until downloaded.
+const rater = (() => { try { return localStorage.getItem("rater") || (localStorage.setItem("rater", "r" + Math.random().toString(36).slice(2, 8)), localStorage.getItem("rater")); } catch { return "r" + Math.random().toString(36).slice(2, 8); } })();
+let pairs = [], i = 0, out = [], t0 = 0;
+const save = () => { try { localStorage.setItem("ratings", JSON.stringify(out)); } catch {} };
+try { out = JSON.parse(localStorage.getItem("ratings") || "[]"); } catch { out = []; }
+fetch("pairs.json").then((r) => r.json()).then((p) => { pairs = p.map((x) => Math.random() < 0.5 ? x : { ...x, a: x.b, b: x.a, a_cond: x.b_cond, b_cond: x.a_cond }).sort(() => Math.random() - 0.5);
+  const done = new Set(out.map((o) => o.id)); pairs = pairs.filter((x) => !done.has(x.id)); show(); });
+function show() { const n = pairs.length + out.length; document.getElementById("prog").style.width = (100 * out.length / Math.max(1, n)) + "%";
+  document.getElementById("count").textContent = `${out.length} of ${n} rated` + (i >= pairs.length ? " — done, please download your ratings." : "");
+  if (i >= pairs.length) return; document.getElementById("va").src = pairs[i].a; document.getElementById("vb").src = pairs[i].b; document.getElementById("note").value = ""; t0 = performance.now(); }
+function choose(c) { if (i >= pairs.length) return; const p = pairs[i]; out.push({ rater, id: p.id, brief: p.brief || "", a_cond: p.a_cond, b_cond: p.b_cond, choice: c, winner: c === "tie" ? "tie" : c === "A" ? p.a_cond : p.b_cond, ms: Math.round(performance.now() - t0), note: document.getElementById("note").value.replace(/[\r\n,]/g, " ") }); save(); i++; show(); }
+document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => choose(b.dataset.c));
+addEventListener("keydown", (e) => { if (e.target.tagName === "TEXTAREA") return; const k = e.key.toLowerCase(); if (k === "a") choose("A"); if (k === "b") choose("B"); if (k === "=") choose("tie"); });
+document.getElementById("dl").onclick = () => { const cols = ["rater", "id", "brief", "a_cond", "b_cond", "choice", "winner", "ms", "note"];
+  const csv = [cols.join(","), ...out.map((o) => cols.map((c) => o[c]).join(","))].join("\n"); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `ratings_${rater}.csv`; a.click(); };
+</script></body></html>

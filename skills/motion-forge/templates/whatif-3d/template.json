@@ -1,0 +1,4 @@
+{ "summary": "9:16 'What if…?' science reel: low-poly Three.js planet + moon, hook → event → 3 consequence cards → follow card. Content in data.json. Needs local `three`.",
+  "defaults": { "width": 1080, "height": 1920, "fps": 30, "duration": 15, "title": "What if" },
+  "needs": [ { "pkg": "three", "files": ["build/three.module.js"], "as": "three.module.js", "license": "three.js is MIT.",
+               "extra": [ { "from": "build/three.core.js", "as": "three.core.js" } ] } ] }

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* One composition, four formats. Sizes come from --mf-u (1% of the frame's SHORT side) and the layout is
+     re-composed per [data-aspect] — never scaled or letterboxed. Content comes from data.json (or ?data= for batch). */
+  :root { --ground: var(--mf-ground, #F1EEE6); --ink: var(--mf-ink, #171715); --mute: var(--mf-mute, #6B6862); --signal: var(--mf-signal, #DE4A1E);
+          --u: var(--mf-u, 10.8px); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--ground); color: var(--ink);
+    font-family: var(--mf-font-display, "MF Display"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .frame { position: absolute; left: var(--mf-safe-l); right: var(--mf-safe-r); top: var(--mf-safe-t); bottom: var(--mf-safe-b); }
+  .kicker { position: absolute; left: 0; top: 0; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 2.4);
+    letter-spacing: 0.09em; text-transform: uppercase; white-space: nowrap; }
+  .kicker b { font-weight: 400; color: var(--mute); }
+  .rule { position: absolute; left: 0; right: 0; top: calc(var(--u) * 4.6); height: max(3px, calc(var(--u) * 0.28)); background: var(--ink); transform-origin: 0 50%; }
+  .headline { position: absolute; margin: 0; font-weight: 700; letter-spacing: -0.05em; line-height: 0.95; text-wrap: balance; }
+  .points { position: absolute; margin: 0; padding: 0; list-style: none; }
+  .points li { position: relative; display: flex; gap: 0.9em; align-items: baseline; font-family: var(--mf-font-text, "MF Text"), sans-serif;
+    font-size: calc(var(--u) * 3.7); line-height: 1.25; padding: 0.55em 0; border-top: max(2px, calc(var(--u) * 0.18)) solid color-mix(in srgb, var(--ink) 18%, var(--ground)); }
+  .points li div { text-wrap: balance; }
+  .points li span { font-feature-settings: "tnum" 1; color: var(--signal); font-weight: 400; min-width: 1.6em; }
+  .end { position: absolute; inset: 0; background: var(--signal); color: var(--ground); clip-path: inset(100% 0 0 0); }
+  .end .brandname { position: absolute; margin: 0; font-weight: 700; letter-spacing: -0.055em; line-height: 0.9; }
+  .end .cta { position: absolute; font-family: var(--mf-font-text, "MF Text"), sans-serif; font-size: calc(var(--u) * 3.4); white-space: nowrap; }
+  .end .logo { position: absolute; width: calc(var(--u) * 9); height: calc(var(--u) * 9); background: var(--mf-logo) center / contain no-repeat; }
+
+  /* --- landscape 16:9: headline left, claims right */
+  [data-aspect=landscape] .headline { left: 0; top: calc(var(--u) * 14); width: 54%; font-size: calc(var(--u) * 10); }
+  [data-aspect=landscape] .points { right: 0; top: calc(var(--u) * 16); width: 39%; }
+  [data-aspect=landscape] .end .brandname { left: var(--mf-safe-l); bottom: calc(var(--mf-safe-b) + var(--u) * 12); font-size: calc(var(--u) * 17); }
+  [data-aspect=landscape] .end .cta { left: calc(var(--mf-safe-l) + var(--u) * 0.6); bottom: calc(var(--mf-safe-b) + var(--u) * 4); }
+  [data-aspect=landscape] .end .logo { right: var(--mf-safe-r); top: var(--mf-safe-t); }
+  /* --- portrait 9:16: stacked, mass in the middle of the safe area */
+  [data-aspect=portrait] .headline { left: 0; right: 0; top: calc(var(--u) * 24); font-size: calc(var(--u) * 12); }
+  [data-aspect=portrait] .points { left: 0; right: 0; top: calc(var(--u) * 78); }
+  [data-aspect=portrait] .points li { font-size: calc(var(--u) * 4.6); }
+  [data-aspect=portrait] .kicker { font-size: calc(var(--u) * 3.3); }
+  [data-aspect=portrait] .rule { top: calc(var(--u) * 6); }
+  [data-aspect=portrait] .end .brandname { left: var(--mf-safe-l); top: calc(var(--mf-safe-t) + var(--u) * 50); font-size: calc(var(--u) * 16.5); }
+  [data-aspect=portrait] .end .cta { left: calc(var(--mf-safe-l) + var(--u) * 0.6); top: calc(var(--mf-safe-t) + var(--u) * 70); font-size: calc(var(--u) * 4.6); }
+  [data-aspect=portrait] .end .logo { left: var(--mf-safe-l); top: calc(var(--mf-safe-t) + var(--u) * 28); width: calc(var(--u) * 13); height: calc(var(--u) * 13); }
+  /* --- square / 4:5: stacked, tighter */
+  [data-aspect=square] .headline, [data-aspect=tall] .headline { left: 0; right: 0; top: calc(var(--u) * 10); font-size: calc(var(--u) * 10.5); }
+  [data-aspect=square] .points, [data-aspect=tall] .points { left: 0; right: 0; top: calc(var(--u) * 44); }
+  [data-aspect=tall] .points { top: calc(var(--u) * 50); }
+  [data-aspect=square] .points li, [data-aspect=tall] .points li { font-size: calc(var(--u) * 3.9); }
+  [data-aspect=square] .end .brandname, [data-aspect=tall] .end .brandname { left: var(--mf-safe-l); bottom: calc(var(--mf-safe-b) + var(--u) * 13); font-size: calc(var(--u) * 16); }
+  [data-aspect=square] .end .cta, [data-aspect=tall] .end .cta { left: calc(var(--mf-safe-l) + var(--u) * 0.6); bottom: calc(var(--mf-safe-b) + var(--u) * 5); }
+  [data-aspect=square] .end .logo, [data-aspect=tall] .end .logo { right: var(--mf-safe-r); top: var(--mf-safe-t); }
+  /* --- captions on: make room for the caption band (bottom of the safe area) */
+  .has-captions[data-aspect=portrait] .headline { top: calc(var(--u) * 12); }
+  .has-captions[data-aspect=portrait] .points { top: calc(var(--u) * 58); }
+  .has-captions[data-aspect=square] .headline, .has-captions[data-aspect=tall] .headline { top: calc(var(--u) * 8); font-size: calc(var(--u) * 9.5); }
+  .has-captions[data-aspect=square] .points { top: calc(var(--u) * 34); }
+  .has-captions[data-aspect=tall] .points { top: calc(var(--u) * 40); }
+  .has-captions[data-aspect=landscape] .points { top: calc(var(--u) * 14); }
+  .has-captions:not([data-aspect=portrait]) .end .brandname { bottom: calc(var(--mf-safe-b) + var(--u) * 30); }
+  .has-captions:not([data-aspect=portrait]) .end .cta { bottom: calc(var(--mf-safe-b) + var(--u) * 22); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="frame">
+    <div class="kicker" id="kicker"></div>
+    <div class="rule" id="rule"></div>
+    <h1 class="headline" id="headline" data-mf-text></h1>
+    <ul class="points" id="points"></ul>
+  </div>
+  <div class="end" id="end"><div class="logo" id="logo"></div><h2 class="brandname" id="brandname"></h2><div class="cta" id="cta"></div></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const FR = MF.frame({ width: {{WIDTH}}, height: {{HEIGHT}}, fps: {{FPS}} });
+const DUR = {{DURATION}}, T = MF.tokens, E = T.ease, u = FR.u;
+const tl = MF.timeline();
+let D = null, captions = null;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+MF.compose({
+  width: FR.width, height: FR.height, fps: FR.fps, duration: DUR, title: "{{TITLE}}", frame: FR,
+  async setup() {
+    D = await MF.data({ brand: "Brand", kicker: "", headline: "Headline", points: [], cta: "", captions: null, captionStyle: "clean", beats: null }, "data.json");
+    const B = D.beats ? MF.beats(await MF.loadJSON(D.beats)) : null;
+    if (D.captions) captions = { srt: await MF.loadText(D.captions), style: D.captionStyle };
+    document.getElementById("kicker").innerHTML = `${esc(D.brand)} <b>— ${esc(D.kicker)}</b>`;
+    document.getElementById("headline").textContent = D.headline;
+    document.getElementById("points").innerHTML = D.points.slice(0, 4).map((p, i) => `<li><span>0${i + 1}</span><div>${esc(p)}</div></li>`).join("");
+    document.getElementById("brandname").textContent = D.brand;
+    document.getElementById("cta").textContent = D.cta;
+    if (!getComputedStyle(document.getElementById("stage")).getPropertyValue("--mf-logo").trim()) document.getElementById("logo").remove();
+    const words = MF.split("#headline", { by: "words" });
+    const items = [...document.querySelectorAll(".points li")];
+    const snap = (t) => (B ? B.after(t) : t);                  // hard-sync the claims to the music when beats are supplied
+    const claimsAt = snap(3.0), step = B ? 2 * (60 / B.bpm) * Math.max(1, Math.round(1.4 / (2 * 60 / B.bpm))) : 1.45;
+    const endAt = snap(claimsAt + step * items.length + 0.9);
+
+    tl.addLabel("open", 0)
+      .fromTo("#rule", { scaleX: 0 }, { scaleX: 1, duration: T.dur.xl, ease: E.snap }, 0.15)
+      .fromTo("#kicker", { opacity: 0, y: u * 1 }, { opacity: 1, y: 0, duration: T.dur.m, ease: E.enter }, 0.45)
+      .fromTo(words, { yPercent: 110 }, { yPercent: 0, duration: T.dur.l, ease: E.enter, stagger: 0.09 }, 0.6)
+      .addLabel("claims", claimsAt);
+    items.forEach((li, i) => {
+      const at = claimsAt + i * step;
+      tl.fromTo(li, { opacity: 0, y: u * 1.5 }, { opacity: 1, y: 0, duration: 0.7, ease: E.enter }, at);   // rise in place: a sideways entry would cross the safe edge in one aspect or another
+      if (i > 0) tl.to(items[i - 1], { opacity: 0.38, duration: 0.5, ease: E.soft }, at);   // the current claim leads; earlier ones stay as context
+    });
+    tl.addLabel("end", endAt)
+      .fromTo("#end", { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.8, ease: E.move }, "end")
+      .fromTo("#brandname", { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, ease: E.enter }, "end+=0.35")
+      .fromTo("#cta", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: E.soft }, "end+=0.8");
+    if (document.getElementById("logo")) tl.fromTo("#logo", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: E.settle }, "end+=0.55");
+  },
+  captions: () => captions,
+  timeline: tl
+});
+</script>
+</body>
+</html>

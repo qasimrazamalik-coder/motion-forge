@@ -1,0 +1,4 @@
+{ "summary": "Three.js scene (instanced monoliths, directed dolly/crane camera, fog, tone mapping). Needs local `three`.",
+  "defaults": { "width": 1920, "height": 1080, "fps": 30, "duration": 8, "title": "Monoliths" },
+  "needs": [ { "pkg": "three", "files": ["build/three.module.js"], "as": "three.module.js", "license": "three.js is MIT.",
+               "extra": [ { "from": "build/three.core.js", "as": "three.core.js" } ] } ] }

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use motion-forge or MotionBench in research, please cite it."
+title: "motion-forge: render-in-the-loop verification for agentic motion graphics"
+type: software
+authors:
+  - family-names: Malik
+    given-names: Qasim Raza
+repository-code: "https://github.com/qasimrazamalik-coder/motion-forge"
+license: MIT
+version: 0.5.0
+date-released: 2026-10-13
+keywords: [motion graphics, AI video, agent skills, Claude Code, video QA, benchmark]

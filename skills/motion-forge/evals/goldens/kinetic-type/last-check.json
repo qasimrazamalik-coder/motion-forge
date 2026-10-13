@@ -1,0 +1,71 @@
+{
+  "when": "2026-10-13T01:43:23.071Z",
+  "results": [
+    {
+      "t": 0,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 2.5,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 3.2,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 3.45,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 5,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 6.6,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 6.85,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 7.5,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 8.3,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 8.55,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "t": 9.97,
+      "ssim": 1,
+      "strongPct": 0,
+      "status": "MATCH"
+    }
+  ]
+}

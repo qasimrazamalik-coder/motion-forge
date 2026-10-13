@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ledgerline — brand film</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* Eval D reference: three acts joined by ONE continuity device — the signal bar is an underline, then a divider,
+     then the field the lockup lands in. Swiss-industrial: paper, graphite, one signal colour. 1u = 1% of height. */
+  :root { --u: calc(1080px / 100); --paper: #EEEAE2; --ink: #161614; --mute: #66635C; --signal: #E0421C; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--paper); color: var(--ink); font-family: "MF Display", sans-serif; -webkit-font-smoothing: antialiased; }
+  .label { position: absolute; font-family: "MF Text", sans-serif; font-size: calc(var(--u) * 1.7); letter-spacing: 0.09em; text-transform: uppercase; font-feature-settings: "tnum" 1; white-space: nowrap; }
+  .label .dim { color: var(--mute); }
+  .act1 { position: absolute; left: calc(var(--u) * 9); top: calc(var(--u) * 30); }
+  .act1 h1 { margin: 0; font-weight: 500; font-size: calc(var(--u) * 15); letter-spacing: -0.045em; line-height: 0.95; }
+  .act1 h1 em { font-family: "MF Serif", serif; font-weight: 400; letter-spacing: -0.02em; }
+  #bar { position: absolute; background: var(--signal); left: 0; top: 0; width: 1px; height: 1px; transform-origin: 0 0; }
+  .col { position: absolute; top: calc(var(--u) * 24); width: calc(var(--u) * 62); }
+  .col .k { font-family: "MF Text", sans-serif; font-size: calc(var(--u) * 1.9); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+  .col .v { margin-top: calc(var(--u) * 1.5); font-weight: 300; font-size: calc(var(--u) * 24); letter-spacing: -0.05em; line-height: 0.9; font-feature-settings: "tnum" 1; }
+  .col .v small { font-size: 0.32em; letter-spacing: -0.02em; margin-left: 0.15em; font-weight: 500; }
+  .col p { margin: calc(var(--u) * 2.5) 0 0; font-family: "MF Text", sans-serif; font-size: calc(var(--u) * 2.3); line-height: 1.35; max-width: 20em; text-wrap: pretty; }
+  .end { position: absolute; left: calc(var(--u) * 9); bottom: calc(var(--u) * 11); color: var(--paper); }
+  .end h2 { margin: 0; font-weight: 700; font-size: calc(var(--u) * 16); letter-spacing: -0.055em; line-height: 0.9; }
+  .end p { margin: calc(var(--u) * 2.4) 0 0; font-family: "MF Text", sans-serif; font-size: calc(var(--u) * 2.4); opacity: 0.85; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="label" id="lab1" style="left: calc(var(--u) * 9); top: calc(var(--u) * 7)">Ledgerline <span class="dim">— 2026</span></div>
+  <div class="label" id="lab2" style="right: calc(var(--u) * 9); top: calc(var(--u) * 7)"><span class="dim">Act</span> <span id="act">01</span><span class="dim"> / 03</span></div>
+  <div class="act1" id="act1"><h1 id="h" data-mf-text>Every number<br>has a <em id="sig">signal.</em></h1></div>
+  <div class="col" id="colL" style="left: calc(var(--u) * 9)"><div class="k">Close, before</div><div class="v"><span id="vL">0</span><small>days</small></div><p id="pL" data-mf-text>Spreadsheets reconciled by hand, line by line.</p></div>
+  <div class="col" id="colR" style="left: calc(var(--u) * 100)"><div class="k">Close, after</div><div class="v"><span id="vR">0</span><small>days</small></div><p id="pR" data-mf-text>Exceptions surface themselves; people review only those.</p></div>
+  <div id="bar"></div>
+  <div class="end" id="end"><h2 id="endT" data-mf-text>Ledgerline</h2><p id="endP">Books that close themselves.</p></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = 1920, H = 1080, u = H / 100, E = MF.tokens.ease;
+const tl = MF.timeline();
+MF.compose({
+  width: W, height: H, fps: 30, duration: 14, title: "Ledgerline — brand film",
+  setup() {
+    const hw = MF.split("#h", { by: "words" }), endW = MF.split("#endT", { by: "chars" });
+    // measure the underline position from the real glyph box, never a hardcoded number
+    const sig = document.getElementById("sig").getBoundingClientRect(), st = document.getElementById("stage").getBoundingClientRect();
+    const ux = sig.left - st.left, uy = sig.bottom - st.top + u * 0.6, uw = sig.width * 0.94;
+    // ACT 1 — statement (0 – 4.4)
+    tl.addLabel("act1", 0)
+      .fromTo(["#lab1", "#lab2"], { opacity: 0 }, { opacity: 1, duration: 0.6, ease: E.soft }, 0.2)
+      .fromTo(hw, { yPercent: 108 }, { yPercent: 0, duration: 0.95, ease: E.enter, stagger: 0.09 }, 0.4)
+      .set("#bar", { x: ux, y: uy, width: 1, height: u * 0.9 }, 0)
+      .fromTo("#bar", { scaleX: 0 }, { scaleX: uw, duration: 0.7, ease: E.snap }, 1.45)
+      // ACT 2 — the underline becomes the divider (4.4 – 9.6)
+      .addLabel("act2", 4.4)
+      .to(hw, { yPercent: -108, duration: 0.45, ease: E.exit, stagger: 0.03 }, "act2-=0.35")
+      .to("#bar", { x: W / 2 - u * 0.45, y: u * 22, duration: 0.85, ease: E.move }, "act2")
+      .to("#bar", { scaleX: u * 0.9, duration: 0.5, ease: E.move }, "act2")
+      .to("#bar", { height: H * 0.62, duration: 0.9, ease: E.move }, "act2+=0.35")
+      .fromTo(["#colL", "#colR"], { opacity: 0, y: u * 1.5 }, { opacity: 1, y: 0, duration: 0.7, ease: E.enter, stagger: 0.25 }, "act2+=0.8")
+      .to({}, { duration: 1.6, ease: "power3.out", onUpdate: (e) => { document.getElementById("vL").textContent = String(Math.round(11 * e)); } }, "act2+=0.9")
+      .to({}, { duration: 1.6, ease: "power3.out", onUpdate: (e) => { document.getElementById("vR").textContent = String(Math.round(2 * e)); } }, "act2+=1.4")
+      // ACT 3 — the divider opens into the field the lockup lives in (9.6 – 14)
+      .addLabel("act3", 9.6)
+      .to(["#colL", "#colR"], { opacity: 0, duration: 0.45, ease: E.exit }, "act3-=0.3")
+      .to("#bar", { x: 0, y: 0, height: H, duration: 0.9, ease: E.move }, "act3")
+      .to("#bar", { scaleX: W, duration: 0.9, ease: E.move }, "act3")
+      .fromTo(endW, { yPercent: 110 }, { yPercent: 0, duration: 0.8, ease: E.enter, stagger: 0.03 }, "act3+=0.6")
+      .fromTo("#endP", { opacity: 0 }, { opacity: 0.85, duration: 0.6, ease: E.soft }, "act3+=1.2")
+      .to({}, { duration: 14, onUpdate: (e, p) => { const t = p * 14; document.getElementById("act").textContent = t < 4.4 ? "01" : t < 9.6 ? "02" : "03"; } }, 0);
+  },
+  timeline: tl
+});
+</script>
+</body>
+</html>

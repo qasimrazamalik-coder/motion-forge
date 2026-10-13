@@ -1,0 +1,22 @@
+{
+  "title": "Riders per day, by line",
+  "subtitle": "Illustrative sample data — replace with your own series",
+  "source": "Source: sample data (data.json)",
+  "unit": "",
+  "periods": ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"],
+  "focus": "Harbour Line",
+  "show": 8,
+  "series": [
+    { "name": "Harbour Line",  "values": [12000, 15500, 21000, 29000, 33500, 41000, 52000, 61000, 74000] },
+    { "name": "North Loop",    "values": [41000, 43000, 44500, 45000, 39000, 42000, 46000, 47500, 49000] },
+    { "name": "Riverside",     "values": [35000, 36000, 38500, 41000, 37000, 40500, 44000, 51000, 56000] },
+    { "name": "Airport Link",  "values": [22000, 26000, 31000, 36000, 14000, 19000, 30000, 39000, 47000] },
+    { "name": "Old Town",      "values": [30000, 30500, 29500, 29000, 26000, 27000, 27500, 28000, 28500] },
+    { "name": "University",    "values": [18000, 19500, 22000, 24000, 15000, 23000, 27000, 30000, 33000] },
+    { "name": "East Spur",     "values": [9000, 11000, 14000, 17500, 18000, 21000, 24500, 26000, 31000] },
+    { "name": "Market St",     "values": [26000, 25000, 24000, 23500, 20000, 21500, 22000, 22500, 23000] },
+    { "name": "Hill Shuttle",  "values": [6000, 6500, 7200, 8000, 7000, 7600, 8300, 9000, 9800] },
+    { "name": "Coast Express", "values": [15000, 16000, 16500, 17000, 12000, 15500, 18500, 20500, 22000] }
+  ],
+  "callout": "Harbour Line went from 8th to 1st in eight years."
+}

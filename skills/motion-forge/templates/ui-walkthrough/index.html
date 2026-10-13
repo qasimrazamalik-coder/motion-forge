@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="brand.css"><!-- brand kit overrides (scaffold --brand / brand.mjs apply) -->
+<style>
+  /* Product walkthrough: the device is the hero, copy explains one step at a time beside it. The screens below are plain
+     HTML — replace them with your app's UI (or <img> screenshots). Tap targets are found by [data-tap] so the
+     indicator always lands on the real element. 1u = 1% of height. */
+  :root { --u: calc({{HEIGHT}} * 1px / 100); --ground: var(--mf-ground, #EDEFF3); --ink: var(--mf-ink, #13151C); --mute: var(--mf-mute, #5F6473); --signal: var(--mf-signal, #3B5BFD); }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; overflow: hidden; background: var(--ground); color: var(--ink); font-family: var(--mf-font-text, "MF Text"), sans-serif; -webkit-font-smoothing: antialiased; }
+  .device { position: absolute; left: 14%; top: 8%; height: 84%; aspect-ratio: 9 / 19; border-radius: calc(var(--u) * 6); background: #0B0C10; padding: calc(var(--u) * 1.1); box-sizing: border-box; box-shadow: 0 calc(var(--u) * 3) calc(var(--u) * 8) rgba(10, 14, 30, 0.22); }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: calc(var(--u) * 5); overflow: hidden; background: #fff; }
+  .scr { position: absolute; inset: 0; padding: calc(var(--u) * 6.5) calc(var(--u) * 2.6) calc(var(--u) * 2); box-sizing: border-box; background: #fff; color: #13151C; font-size: calc(var(--u) * 2.3); }
+  .scr h3 { margin: 0 0 calc(var(--u) * 2); font-family: var(--mf-font-display, "MF Display"), sans-serif; font-size: calc(var(--u) * 4.2); letter-spacing: -0.03em; }
+  .scr .tag { font-size: calc(var(--u) * 1.7); color: #5F6473; text-transform: uppercase; letter-spacing: 0.08em; }
+  .item { display: flex; justify-content: space-between; align-items: center; padding: calc(var(--u) * 2) 0; border-bottom: 1px solid #E6E8EE; }
+  .item b { font-weight: 600; } .item span { color: #5F6473; font-size: calc(var(--u) * 1.9); display: block; } .item i { font-style: normal; font-feature-settings: "tnum" 1; }
+  .fab { position: absolute; right: calc(var(--u) * 2.4); bottom: calc(var(--u) * 3); width: calc(var(--u) * 7); height: calc(var(--u) * 7); border-radius: 50%; background: var(--signal); color: #fff; display: grid; place-items: center; font-size: calc(var(--u) * 4); line-height: 1; }
+  .field { margin-bottom: calc(var(--u) * 1.8); } .field label { display: block; font-size: calc(var(--u) * 1.8); color: #5F6473; margin-bottom: calc(var(--u) * 0.6); }
+  .field .in { border: 1.5px solid #D9DCE5; border-radius: calc(var(--u) * 1.2); padding: calc(var(--u) * 1.2) calc(var(--u) * 1.4); font-feature-settings: "tnum" 1; }
+  .field .amt { font-family: var(--mf-font-display, "MF Display"), sans-serif; font-size: calc(var(--u) * 5.4); letter-spacing: -0.03em; font-weight: 700; }
+  .chips { display: flex; gap: calc(var(--u) * 0.8); flex-wrap: wrap; } .chips em { font-style: normal; padding: calc(var(--u) * 0.7) calc(var(--u) * 1.3); border-radius: 99px; background: #EEF1FF; color: var(--signal); font-size: calc(var(--u) * 2); }
+  .btn { position: absolute; left: calc(var(--u) * 2.4); right: calc(var(--u) * 2.4); bottom: calc(var(--u) * 3); padding: calc(var(--u) * 1.8) 0; border-radius: calc(var(--u) * 1.6); background: var(--signal); color: #fff; text-align: center; font-weight: 600; }
+  .ok { width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%; background: #E6F6EC; color: #167A40; display: grid; place-items: center; font-size: calc(var(--u) * 4.4); margin: calc(var(--u) * 4) auto calc(var(--u) * 2); }
+  .center { text-align: center; }
+  .bal { display: flex; justify-content: space-between; padding: calc(var(--u) * 1.8) 0; border-bottom: 1px solid #E6E8EE; } .bal i { font-style: normal; font-feature-settings: "tnum" 1; } .bal .pos { color: #167A40; }
+  .tap { position: absolute; left: 0; top: 0; width: calc(var(--u) * 6); height: calc(var(--u) * 6); margin: calc(var(--u) * -3) 0 0 calc(var(--u) * -3); border-radius: 50%; background: color-mix(in srgb, var(--signal) 22%, transparent); border: calc(var(--u) * 0.35) solid #fff; box-shadow: 0 0 0 calc(var(--u) * 0.2) rgba(0,0,0,0.12); opacity: 0; pointer-events: none; z-index: 20; }
+  .copy { position: absolute; left: 47%; right: 8%; top: 16%; }
+  .kicker { font-size: calc(var(--u) * 2); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: color-mix(in srgb, var(--signal) 78%, var(--ink)); }
+  .headline { margin: calc(var(--u) * 1.6) 0 0; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; font-size: calc(var(--u) * 6.4); line-height: 1.0; letter-spacing: -0.04em; text-wrap: balance; }
+  .steps { position: absolute; left: 47%; right: 8%; top: 54%; margin: 0; padding: 0; list-style: none; }
+  .steps li { display: grid; grid-template-columns: calc(var(--u) * 6) 1fr; align-items: baseline; padding: calc(var(--u) * 1.4) 0; border-top: 1px solid color-mix(in srgb, var(--ink) 14%, var(--ground)); opacity: 0.3; }
+  .steps li .n { font-family: var(--mf-font-display, "MF Display"), sans-serif; font-weight: 700; font-size: calc(var(--u) * 3); color: var(--signal); font-feature-settings: "tnum" 1; }
+  .steps li b { display: block; font-family: var(--mf-font-display, "MF Display"), sans-serif; font-size: calc(var(--u) * 3.3); letter-spacing: -0.02em; }
+  .steps li span { display: block; margin-top: calc(var(--u) * 0.5); font-size: calc(var(--u) * 2.2); color: var(--mute); }
+  .foot { position: absolute; left: 47%; bottom: 7%; font-size: calc(var(--u) * 1.7); color: var(--mute); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="device" id="device"><div class="screen" id="screen">
+    <div class="scr" id="s1"><div class="tag">Group</div><h3>Lisbon trip</h3>
+      <div class="item"><div><b>Dinner, Alfama</b><span>Paid by Sam</span></div><i>€84.00</i></div>
+      <div class="item"><div><b>Tram tickets</b><span>Paid by you</span></div><i>€24.00</i></div>
+      <div class="item"><div><b>Groceries</b><span>Paid by Ana</span></div><i>€41.50</i></div>
+      <div class="fab" data-tap="1">+</div></div>
+    <div class="scr" id="s2"><div class="tag">New expense</div><h3>Add to Lisbon trip</h3>
+      <div class="field"><label>Amount</label><div class="in amt">€36.00</div></div>
+      <div class="field"><label>What for</label><div class="in">Museum tickets</div></div>
+      <div class="field"><label>Paid by</label><div class="in">You</div></div>
+      <div class="field"><label>Split with</label><div class="chips"><em>Sam</em><em>Ana</em><em>You</em></div></div>
+      <div class="btn" data-tap="2">Save expense</div></div>
+    <div class="scr center" id="s3"><div class="ok">✓</div><h3>Saved</h3><div class="tag" style="margin-bottom: calc(var(--u) * 3)">Balances</div>
+      <div class="bal"><span>Sam</span><i>−€12.00</i></div><div class="bal"><span>Ana</span><i>−€12.00</i></div><div class="bal"><span>You</span><i class="pos">+€24.00</i></div><div class="btn">Settle up</div></div>
+  </div></div>
+  <div class="tap" id="tap"></div>
+  <div class="copy"><div class="kicker" id="kicker"></div><h1 class="headline" id="headline" data-mf-text></h1></div>
+  <ol class="steps" id="steps"></ol>
+  <div class="foot" id="foot"></div>
+</div>
+<script src="mf-runtime.js"></script>
+<script>
+const W = {{WIDTH}}, H = {{HEIGHT}}, DUR = {{DURATION}}, E = MF.tokens.ease;
+const tl = MF.timeline();
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// centre of a [data-tap] element in stage coordinates (layout is static, so this is measured once, deterministically)
+function centre(sel) { const st = document.getElementById("stage").getBoundingClientRect(), r = document.querySelector(sel).getBoundingClientRect(), k = st.width / W;
+  return { x: (r.left + r.width / 2 - st.left) / k, y: (r.top + r.height / 2 - st.top) / k }; }
+
+MF.compose({
+  width: W, height: H, fps: {{FPS}}, duration: DUR, title: "{{TITLE}}",
+  async setup() {
+    const D = await MF.data({ app: "", kicker: "", headline: "", steps: [], cta: "" }, "data.json");
+    document.getElementById("kicker").textContent = D.kicker;
+    document.getElementById("headline").textContent = D.headline;
+    document.getElementById("foot").textContent = D.cta;
+    document.getElementById("steps").innerHTML = D.steps.slice(0, 3).map((s, i) => `<li><span class="n">${i + 1}</span><div><b>${esc(s.title)}</b><span>${esc(s.text)}</span></div></li>`).join("");
+    const li = [...document.querySelectorAll("#steps li")];
+    const sw = document.getElementById("screen").offsetWidth;
+    const t1 = centre('[data-tap="1"]'), t2 = centre('[data-tap="2"]');
+    // screens start stacked to the right; transitions slide the next screen in over a slight parallax of the old one
+    tl.set("#s2", { x: sw }).set("#s3", { x: sw })
+      .addLabel("intro", 0)
+      .fromTo("#device", { y: H * 0.06, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: E.enter }, 0.1)
+      .fromTo("#kicker", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: E.soft }, 0.3)
+      .fromTo(MF.split("#headline", { by: "words" }), { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: E.enter, stagger: 0.05 }, 0.4)
+      .fromTo(li, { opacity: 0, x: W * 0.01 }, { opacity: 0.3, x: 0, duration: 0.5, ease: E.enter, stagger: 0.08 }, 1.0)
+      .fromTo("#foot", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: E.soft }, 1.2);
+    // step 1: tap +  → screen 2
+    const tap = (at, p) => tl.set("#tap", { x: p.x, y: p.y }, at - 0.5)
+      .fromTo("#tap", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.35, ease: E.enter }, at - 0.45)
+      .to("#tap", { scale: 0.8, duration: 0.12, ease: "power2.in" }, at)
+      .to("#tap", { scale: 1.25, opacity: 0, duration: 0.4, ease: E.exit }, at + 0.12);
+    const step = (i, at) => { tl.to(li[i], { opacity: 1, duration: 0.4, ease: E.soft }, at); if (i) tl.to(li[i - 1], { opacity: 0.3, duration: 0.4, ease: E.soft }, at); };
+    const go = (from, to, at) => tl.to(from, { x: -sw * 0.25, duration: 0.6, ease: E.move }, at).fromTo(to, { x: sw }, { x: 0, duration: 0.6, ease: E.move }, at);
+    tl.addLabel("step1", 2.4); step(0, 2.4); tap(3.6, t1); go("#s1", "#s2", 3.8);
+    tl.addLabel("step2", 5.6); step(1, 5.6);
+    tl.fromTo("#s2 .amt", { opacity: 0.25 }, { opacity: 1, duration: 0.6, ease: E.soft }, 4.6);
+    tap(7.8, t2); go("#s2", "#s3", 8.0);
+    tl.addLabel("step3", 8.4); step(2, 8.4);
+    tl.fromTo("#s3 .ok", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: E.settle }, 8.5)
+      .fromTo("#s3 .bal", { opacity: 0, y: H * 0.01 }, { opacity: 1, y: 0, duration: 0.45, ease: E.enter, stagger: 0.1 }, 8.9);
+  },
+  timeline: tl
+});
+</script>
+</body>
+</html>
